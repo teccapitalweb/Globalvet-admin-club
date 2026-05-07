@@ -467,7 +467,7 @@ body.dark #darkToggle .icon-sun{display:block}
           <div class="notif-preview__text"><h4 id="prevTitle"><span id="prevEmoji">📢</span> Título de la notificación</h4><p id="prevMsg">Mensaje de la notificación...</p></div>
         </div>
       </div>
-      <div class="form-actions" style="margin-top:20px"><button class="btn-primary" onclick="alert('Notificación enviada a 127 miembros')"><svg class="icon" viewBox="0 0 24 24" style="width:16px;height:16px;stroke:white"><path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg> Enviar a todos</button></div>
+      <div class="form-actions" style="margin-top:20px"><button class="btn-primary" onclick="saveNotificacion()"><svg class="icon" viewBox="0 0 24 24" style="width:16px;height:16px;stroke:white"><path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg> Enviar a todos</button></div>
     </div>
     <div class="data-table-wrap" style="margin-top:24px">
       <div class="data-table-header"><div class="data-table-header__title">Historial de notificaciones</div></div>
@@ -509,8 +509,8 @@ body.dark #darkToggle .icon-sun{display:block}
     <button class="modal__close" onclick="closeModal('cursoModal')"><svg class="icon" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M6 18L18 6M6 6l12 12"/></svg></button>
     <div class="modal__title">Nuevo curso</div>
     <div class="modal__desc">Completa la información del curso y agrega sus clases.</div>
-    <div class="form-group"><label class="form-label">Nombre del curso</label><input class="form-input" placeholder="Ej: Fundamentos de Dermatología"></div>
-    <div class="form-group"><label class="form-label">Descripción</label><textarea class="form-input form-textarea" placeholder="Breve descripción del contenido del curso..."></textarea></div>
+    <div class="form-group"><label class="form-label">Nombre del curso</label><input class="form-input" placeholder="Ej: Fundamentos de Dermatología" id="cNombre"></div>
+    <div class="form-group"><label class="form-label">Descripción</label><textarea class="form-input form-textarea" placeholder="Breve descripción del contenido del curso..." id="cDesc"></textarea></div>
     <div class="form-row"><div class="form-group"><label class="form-label">Categoría</label><select class="form-input form-select"><option>Cirugía</option><option>Diagnóstico</option><option>Nutrición</option><option>Dermatología</option><option>Urgencias</option><option>Odontología</option></select></div><div class="form-group"><label class="form-label">Nivel</label><select class="form-input form-select"><option>Básico</option><option>Intermedio</option><option>Avanzado</option></select></div></div>
     <div class="form-row"><div class="form-group"><label class="form-label">Instructor</label><input class="form-input" placeholder="Dr. Nombre"></div><div class="form-group"><label class="form-label">Estado</label><select class="form-input form-select"><option>Publicado</option><option>Borrador</option><option>Oculto</option></select></div></div>
     <div class="form-group"><label class="form-label">Liberación</label><select class="form-input form-select"><option>Inmediato</option><option>Semanal</option><option>Programado</option></select></div>
@@ -521,7 +521,7 @@ body.dark #darkToggle .icon-sun{display:block}
     <div id="cursoClasses" class="class-list"></div>
     <button class="add-class-btn" onclick="addClass('cursoClasses','cursoClassCount')">+ Agregar clase</button>
     <div class="modal__divider"></div>
-    <div class="form-actions"><button class="btn-primary" onclick="alert('Curso guardado');closeModal('cursoModal')">Guardar curso</button><button class="btn-ghost" onclick="closeModal('cursoModal')">Cancelar</button></div>
+    <div class="form-actions"><button class="btn-primary" onclick="saveCurso()">Guardar curso</button><button class="btn-ghost" onclick="closeModal('cursoModal')">Cancelar</button></div>
   </div>
 </div>
 
@@ -543,7 +543,7 @@ body.dark #darkToggle .icon-sun{display:block}
     <div class="form-card__desc" style="margin-bottom:14px">Si el webinar ya se realizó, agrega el link de la grabación para que se muestre como webinar pasado en el Club.</div>
     <div class="form-group"><label class="gd-label"><svg class="icon" viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg> Link de la grabación (Google Drive)</label><input class="form-input gd-input" placeholder="https://drive.google.com/file/d/..."></div>
     <div class="modal__divider"></div>
-    <div class="form-actions"><button class="btn-primary" onclick="alert('Webinar programado');closeModal('webinarModal')">Programar</button><button class="btn-ghost" onclick="closeModal('webinarModal')">Cancelar</button></div>
+    <div class="form-actions"><button class="btn-primary" onclick="saveWebinar()">Programar</button><button class="btn-ghost" onclick="closeModal('webinarModal')">Cancelar</button></div>
   </div>
 </div>
 
@@ -558,7 +558,7 @@ body.dark #darkToggle .icon-sun{display:block}
     <div class="form-group"><label class="gd-label"><svg class="icon" viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg> Archivo PDF (Google Drive)</label><input class="form-input gd-input" placeholder="https://drive.google.com/file/d/..."></div>
     <div class="form-group"><label class="gd-label"><svg class="icon" viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg> Imagen de portada (Google Drive)</label><input class="form-input gd-input" placeholder="https://drive.google.com/file/d/..."></div>
     <div class="modal__divider"></div>
-    <div class="form-actions"><button class="btn-primary" onclick="alert('Material subido');closeModal('pdfModal')">Subir</button><button class="btn-ghost" onclick="closeModal('pdfModal')">Cancelar</button></div>
+    <div class="form-actions"><button class="btn-primary" onclick="savePdf()">Subir</button><button class="btn-ghost" onclick="closeModal('pdfModal')">Cancelar</button></div>
   </div>
 </div>
 
@@ -572,10 +572,17 @@ body.dark #darkToggle .icon-sun{display:block}
     <div class="form-row"><div class="form-group"><label class="form-label">Fuente</label><input class="form-input" placeholder="Ej: WSAVA, SENASICA, UNAM"></div><div class="form-group"><label class="form-label">Estado</label><select class="form-input form-select"><option>Publicada</option><option>Borrador</option><option>Programada</option></select></div></div>
     <div class="form-group"><label class="gd-label"><svg class="icon" viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg> Imagen de portada (URL o Google Drive)</label><input class="form-input gd-input" placeholder="https://..."></div>
     <div class="modal__divider"></div>
-    <div class="form-actions"><button class="btn-primary" onclick="alert('Noticia publicada');closeModal('newsModal')">Publicar</button><button class="btn-ghost" onclick="closeModal('newsModal')">Cancelar</button></div>
+    <div class="form-actions"><button class="btn-primary" onclick="saveNoticia()">Publicar</button><button class="btn-ghost" onclick="closeModal('newsModal')">Cancelar</button></div>
   </div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+firebase.initializeApp({apiKey:"AIzaSyD_28_ODOJWqzEgN4kagOf4lszt8Y1Zlog",authDomain:"globalvet-mexico.firebaseapp.com",projectId:"globalvet-mexico",storageBucket:"globalvet-mexico.firebasestorage.app",messagingSenderId:"146292961707",appId:"1:146292961707:web:714454893bfcf3c1b8e2ee"});
+var db=firebase.firestore();
+</script>
 <script>
 function openModal(id){document.getElementById(id).classList.add('show');document.body.style.overflow='hidden'}
 function closeModal(id){document.getElementById(id).classList.remove('show');document.body.style.overflow=''}
@@ -606,6 +613,28 @@ var emojiMap={'General':'📢','Nuevo curso':'📚','Webinar':'🎥','Material n
 if(nt)nt.addEventListener('input',function(){document.getElementById('prevTitle').innerHTML='<span id="prevEmoji">'+(emojiMap[ntp.value]||'📢')+'</span> '+(this.value||'Título de la notificación')});
 if(nm)nm.addEventListener('input',function(){document.getElementById('prevMsg').textContent=this.value||'Mensaje de la notificación...'});
 if(ntp)ntp.addEventListener('change',function(){document.getElementById('prevEmoji').textContent=emojiMap[this.value]||'📢'});
+
+// ============ FIRESTORE CRUD ============
+function getInputs(mid){var m=document.getElementById(mid);var v=[];m.querySelectorAll('.form-input').forEach(function(i){v.push(i.value||'')});return v}
+function getClasses(){var c=[];document.querySelectorAll('#cursoClasses .class-item').forEach(function(it,i){var inp=it.querySelectorAll('input');c.push({numero:i+1,nombre:inp[0]?inp[0].value:'',descripcion:inp[1]?inp[1].value:'',duracion:inp[2]?inp[2].value:'',video:inp[3]?inp[3].value:''})});return c}
+function saveCurso(){var v=getInputs('cursoModal');if(!v[0]){alert('Ingresa el nombre del curso');return;}db.collection('cursos').add({nombre:v[0],descripcion:v[1],categoria:v[2],nivel:v[3],instructor:v[4],estado:v[5],liberacion:v[6],temario:v[7],imagen:v[8],clases:getClasses(),creado:new Date().toISOString()}).then(function(){closeModal('cursoModal');loadCursos();alert('Curso guardado')}).catch(function(e){alert('Error: '+e.message)})}
+function saveWebinar(){var v=getInputs('webinarModal');if(!v[0]){alert('Ingresa el título');return;}db.collection('webinars').add({titulo:v[0],descripcion:v[1],ponente:v[2],estado:v[3],fecha:v[4],hora:v[5],duracion:v[6],cupo:v[7],link:v[8],imagen:v[9],cv:v[10],grabacion:v[11],creado:new Date().toISOString()}).then(function(){closeModal('webinarModal');loadWebinars();alert('Webinar programado')}).catch(function(e){alert('Error: '+e.message)})}
+function savePdf(){var v=getInputs('pdfModal');if(!v[0]){alert('Ingresa el título');return;}db.collection('pdfs').add({titulo:v[0],descripcion:v[1],categoria:v[2],estado:v[3],archivo:v[4],imagen:v[5],creado:new Date().toISOString()}).then(function(){closeModal('pdfModal');loadPdfs();alert('Material subido')}).catch(function(e){alert('Error: '+e.message)})}
+function saveNoticia(){var v=getInputs('newsModal');if(!v[0]){alert('Ingresa el título');return;}db.collection('noticias').add({titulo:v[0],contenido:v[1],fuente:v[2],estado:v[3],imagen:v[4],creado:new Date().toISOString()}).then(function(){closeModal('newsModal');loadNoticias();alert('Noticia publicada')}).catch(function(e){alert('Error: '+e.message)})}
+function saveNotificacion(){var t=document.getElementById('notifTitle').value,m=document.getElementById('notifMsg').value,tp=document.getElementById('notifType').value;if(!t||!m){alert('Ingresa título y mensaje');return;}db.collection('notificaciones').add({titulo:t,mensaje:m,tipo:tp,emoji:emojiMap[tp]||'📢',creado:new Date().toISOString()}).then(function(){document.getElementById('notifTitle').value='';document.getElementById('notifMsg').value='';loadNotificaciones();alert('Notificación enviada')}).catch(function(e){alert('Error: '+e.message)})}
+
+function deleteDoc(col,id){if(confirm('¿Eliminar este registro?')){db.collection(col).doc(id).delete().then(function(){if(col==='cursos')loadCursos();if(col==='webinars')loadWebinars();if(col==='pdfs')loadPdfs();if(col==='noticias')loadNoticias();if(col==='notificaciones')loadNotificaciones()})}}
+function be(e){return(e==='Publicado'||e==='Publicada'||e==='Próximo')?'badge--active':(e==='Borrador'||e==='Pendiente'||e==='Oculto')?'badge--pending':'badge--inactive'}
+function bn(n){return n==='Básico'?'badge--purple':n==='Intermedio'?'badge--info':'badge--pending'}
+var delSvg='<svg class="icon" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>';
+
+function loadCursos(){db.collection('cursos').orderBy('creado','desc').get().then(function(s){var tb=document.querySelector('[data-page="cursos"] tbody');if(!tb)return;tb.innerHTML='';var n=0;s.forEach(function(d){var c=d.data();n++;tb.innerHTML+='<tr><td><strong>'+c.nombre+'</strong></td><td>'+c.instructor+'</td><td><span class="badge '+bn(c.nivel)+'">'+c.nivel+'</span></td><td>'+(c.clases?c.clases.length:0)+'</td><td><span class="badge '+be(c.estado)+'">'+c.estado+'</span></td><td><div class="table-actions"><button class="table-btn table-btn--danger" onclick="deleteDoc(\'cursos\',\''+d.id+'\')">'+delSvg+'</button></div></td></tr>'});var h=document.querySelector('[data-page="cursos"] .data-table-header__title');if(h)h.textContent=n+' curso'+(n!==1?'s':'')})}
+function loadWebinars(){db.collection('webinars').orderBy('creado','desc').get().then(function(s){var tb=document.querySelector('[data-page="webinars"] tbody');if(!tb)return;tb.innerHTML='';var n=0;s.forEach(function(d){var c=d.data();n++;tb.innerHTML+='<tr><td><strong>'+c.titulo+'</strong></td><td>'+c.ponente+'</td><td>'+c.fecha+'</td><td>'+c.hora+'</td><td><span class="badge '+be(c.estado)+'">'+c.estado+'</span></td><td><div class="table-actions"><button class="table-btn table-btn--danger" onclick="deleteDoc(\'webinars\',\''+d.id+'\')">'+delSvg+'</button></div></td></tr>'});var h=document.querySelector('[data-page="webinars"] .data-table-header__title');if(h)h.textContent=n+' webinar'+(n!==1?'s':'')})}
+function loadPdfs(){db.collection('pdfs').orderBy('creado','desc').get().then(function(s){var tb=document.querySelector('[data-page="pdfs"] tbody');if(!tb)return;tb.innerHTML='';var n=0;s.forEach(function(d){var c=d.data();n++;tb.innerHTML+='<tr><td><strong>'+c.titulo+'</strong></td><td><span class="badge badge--purple">'+c.categoria+'</span></td><td>—</td><td>—</td><td><div class="table-actions"><button class="table-btn table-btn--danger" onclick="deleteDoc(\'pdfs\',\''+d.id+'\')">'+delSvg+'</button></div></td></tr>'});var h=document.querySelector('[data-page="pdfs"] .data-table-header__title');if(h)h.textContent=n+' documento'+(n!==1?'s':'')})}
+function loadNoticias(){db.collection('noticias').orderBy('creado','desc').get().then(function(s){var tb=document.querySelector('[data-page="noticias"] tbody');if(!tb)return;tb.innerHTML='';var n=0;s.forEach(function(d){var c=d.data();n++;var f=c.creado?new Date(c.creado).toLocaleDateString('es-MX'):'—';tb.innerHTML+='<tr><td><strong>'+c.titulo+'</strong></td><td>'+c.fuente+'</td><td>'+f+'</td><td><span class="badge '+be(c.estado)+'">'+c.estado+'</span></td><td><div class="table-actions"><button class="table-btn table-btn--danger" onclick="deleteDoc(\'noticias\',\''+d.id+'\')">'+delSvg+'</button></div></td></tr>'});var h=document.querySelector('[data-page="noticias"] .data-table-header__title');if(h)h.textContent=n+' noticia'+(n!==1?'s':'')})}
+function loadNotificaciones(){db.collection('notificaciones').orderBy('creado','desc').get().then(function(s){var tb=document.querySelector('[data-page="notificaciones"] tbody');if(!tb)return;tb.innerHTML='';s.forEach(function(d){var c=d.data();var f=c.creado?new Date(c.creado).toLocaleDateString('es-MX'):'—';tb.innerHTML+='<tr><td><strong>'+c.emoji+' '+c.titulo+'</strong></td><td><span class="badge badge--info">'+c.tipo+'</span></td><td>'+f+'</td><td>Todos</td></tr>'})})}
+
+loadCursos();loadWebinars();loadPdfs();loadNoticias();loadNotificaciones();
 </script>
 </body>
 </html>
