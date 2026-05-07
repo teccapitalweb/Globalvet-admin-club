@@ -141,6 +141,28 @@ body{font-family:var(--font-body);color:var(--gray-900);background:var(--gray-50
 .notif-preview__text p{font-size:0.76rem;color:var(--gray-400)}
 
 /* MOBILE */
+.sidebar__count{margin-left:auto;font-size:0.68rem;font-weight:600;color:var(--gray-400);background:var(--gray-100);padding:2px 8px;border-radius:50px;flex-shrink:0}
+body.dark .sidebar__count{background:var(--dk-border);color:var(--dk-muted)}
+.sidebar__link.active .sidebar__count{background:var(--purple-100);color:var(--purple-600)}
+body.dark .sidebar__link.active .sidebar__count{background:rgba(127,76,165,0.2);color:var(--purple-400)}
+
+.admin-login{position:fixed;inset:0;z-index:9999;background:var(--white);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.35s ease}
+.admin-login.show{opacity:1;pointer-events:auto}
+body.dark .admin-login{background:var(--dk-bg)}
+.admin-login__box{width:100%;max-width:380px;padding:40px 32px;text-align:center}
+.admin-login__icon{width:56px;height:56px;margin:0 auto 16px;background:var(--purple-900);border-radius:14px;display:grid;place-items:center;color:white;font-size:18px;font-weight:700;font-family:var(--font-body)}
+.admin-login__title{font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:var(--gray-900);margin-bottom:4px}
+body.dark .admin-login__title{color:var(--dk-text)}
+.admin-login__desc{font-size:0.85rem;color:var(--gray-400);margin-bottom:28px}
+.admin-login__badge{display:inline-block;font-size:0.6rem;font-weight:600;background:var(--purple-50);color:var(--purple-600);padding:3px 12px;border-radius:50px;letter-spacing:0.08em;margin-bottom:20px;text-transform:uppercase}
+body.dark .admin-login__badge{background:rgba(127,76,165,0.15);color:var(--purple-400)}
+.admin-login__box .form-group{text-align:left;margin-bottom:18px}
+.admin-login__box .form-input{width:100%}
+.admin-login__btn{width:100%;padding:13px;border-radius:50px;background:var(--purple-900);color:white;font-size:0.9rem;font-weight:600;border:none;cursor:pointer;font-family:var(--font-body);transition:all var(--transition);margin-top:8px}
+.admin-login__btn:hover{background:var(--purple-600);transform:translateY(-1px)}
+.admin-login__error{display:none;font-size:0.78rem;color:var(--red-500);margin-top:12px}
+.admin-login__error.show{display:block}
+
 .sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.25);z-index:45;opacity:0;pointer-events:none;transition:opacity 0.3s ease}
 .sidebar-overlay.active{opacity:1;pointer-events:auto}
 
@@ -283,6 +305,20 @@ body.dark #darkToggle .icon-sun{display:block}
 </style>
 </head>
 <body>
+
+<!-- ADMIN LOGIN -->
+<div class="admin-login" id="adminLogin">
+  <div class="admin-login__box">
+    <div class="admin-login__icon">GV</div>
+    <div class="admin-login__badge">Panel administrativo</div>
+    <div class="admin-login__title">Acceso Admin</div>
+    <div class="admin-login__desc">Ingresa tus credenciales de administrador.</div>
+    <div class="form-group"><label class="form-label">Correo electrónico</label><input class="form-input" type="email" placeholder="admin@globalvet.mx" id="adminEmail"></div>
+    <div class="form-group"><label class="form-label">Contraseña</label><input class="form-input" type="password" placeholder="••••••••" id="adminPass" onkeydown="if(event.key==='Enter')adminLogin()"></div>
+    <button class="admin-login__btn" onclick="adminLoginFn()">Iniciar sesión</button>
+    <div class="admin-login__error" id="adminError">Credenciales incorrectas. Intenta de nuevo.</div>
+  </div>
+</div>
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
 <aside class="sidebar" id="sidebar">
@@ -313,7 +349,7 @@ body.dark #darkToggle .icon-sun{display:block}
   </div>
   <div class="sidebar__spacer"></div>
   <div class="sidebar__user"><div class="sidebar__avatar">AD</div><div class="sidebar__user-info"><h4>Administrador</h4><span>admin@globalvet.mx</span></div></div>
-  <button class="sidebar__logout" onclick="window.location.reload()"><svg class="icon" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg> Cerrar sesión</button>
+  <button class="sidebar__logout" onclick="adminLogout()"><svg class="icon" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg> Cerrar sesión</button>
 </aside>
 
 <div class="main-wrapper">
@@ -455,7 +491,12 @@ body.dark #darkToggle .icon-sun{display:block}
         </div>
         <div class="toggle" id="maintToggle" onclick="toggleMaint()"></div>
       </div>
-      <div id="maintStatus"><span class="maint-status maint-status--off">● Club activo — funcionando normalmente</span></div>
+      <div id="maintMsg" style="display:none;margin-top:16px">
+        <div class="form-group"><label class="form-label">Mensaje para los miembros</label><input class="form-input" id="maintMsgInput" placeholder="Ej: Estamos mejorando la plataforma. Volvemos a las 8pm." value="Estamos realizando mejoras en la plataforma. Volvemos pronto."></div>
+        <div class="form-group"><label class="form-label">Tiempo estimado de regreso</label><input class="form-input" type="time" id="maintTime" value="20:00"></div>
+        <div style="margin-top:12px"><button class="btn-primary" onclick="alert('Configuración de mantenimiento guardada')">Guardar mensaje</button></div>
+      </div>
+      <div id="maintStatus" style="margin-top:16px"><span class="maint-status maint-status--off">● Club activo — funcionando normalmente</span></div>
     </div>
   </div>
 
@@ -546,8 +587,11 @@ function addClass(listId,countId){
   document.getElementById(countId).textContent=list.children.length+' clase'+(list.children.length>1?'s':'');
 }
 function updateCount(listId,countId){var n=document.getElementById(listId).children.length;document.getElementById(countId).textContent=n+' clase'+(n!==1?'s':'');}
-function toggleMaint(){var t=document.getElementById('maintToggle');t.classList.toggle('on');var on=t.classList.contains('on');document.getElementById('maintStatus').innerHTML=on?'<span class="maint-status maint-status--on">⚠ Club en mantenimiento — los miembros no pueden acceder</span>':'<span class="maint-status maint-status--off">● Club activo — funcionando normalmente</span>';localStorage.setItem('gv-maint',on?'1':'0')}
-if(localStorage.getItem('gv-maint')==='1'){document.getElementById('maintToggle').classList.add('on');document.getElementById('maintStatus').innerHTML='<span class="maint-status maint-status--on">⚠ Club en mantenimiento — los miembros no pueden acceder</span>'}
+function toggleMaint(){var t=document.getElementById('maintToggle');t.classList.toggle('on');var on=t.classList.contains('on');document.getElementById('maintMsg').style.display=on?'block':'none';document.getElementById('maintStatus').innerHTML=on?'<span class="maint-status maint-status--on">⚠ Club en mantenimiento — los miembros no pueden acceder</span>':'<span class="maint-status maint-status--off">● Club activo — funcionando normalmente</span>';localStorage.setItem('gv-maint',on?'1':'0')}
+if(localStorage.getItem('gv-maint')==='1'){document.getElementById('maintToggle').classList.add('on');document.getElementById('maintMsg').style.display='block';document.getElementById('maintStatus').innerHTML='<span class="maint-status maint-status--on">⚠ Club en mantenimiento — los miembros no pueden acceder</span>'}
+function adminLoginFn(){var e=document.getElementById('adminEmail').value;var p=document.getElementById('adminPass').value;if(e==='admin@globalvet.mx'&&p==='GVAdmin2026'){document.getElementById('adminLogin').classList.remove('show');localStorage.setItem('gv-admin-logged','1');document.getElementById('adminError').classList.remove('show')}else{document.getElementById('adminError').classList.add('show')}}
+if(localStorage.getItem('gv-admin-logged')!=='1'){document.getElementById('adminLogin').classList.add('show')}
+function adminLogout(){localStorage.setItem('gv-admin-logged','0');document.getElementById('adminLogin').classList.add('show');document.getElementById('adminEmail').value='';document.getElementById('adminPass').value='';closeSidebar()}
 function toggleDark(){document.body.classList.toggle('dark');localStorage.setItem('gv-admin-dark',document.body.classList.contains('dark')?'1':'0')}
 if(localStorage.getItem('gv-admin-dark')==='1')document.body.classList.add('dark');
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('active')}
