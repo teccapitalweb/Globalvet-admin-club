@@ -393,13 +393,8 @@ body.dark #darkToggle .icon-sun{display:block}
   <div class="page-content" data-page="miembros">
     <div class="page-header"><div class="page-header__left"><h1 class="page-header__title">Miembros</h1><p class="page-header__desc">Gestiona los miembros registrados del Club.</p></div></div>
     <div class="data-table-wrap">
-      <div class="data-table-header"><div class="data-table-header__title">127 miembros</div><div class="data-table-search"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><input type="text" placeholder="Buscar miembro..."></div></div>
-      <div class="data-table-overflow"><table class="data-table"><thead><tr><th>Nombre</th><th>Correo</th><th>Plan</th><th>Estado</th><th>Registro</th><th>Acciones</th></tr></thead><tbody>
-        <tr><td><strong>Dr. Alejandro Ruiz</strong></td><td>alejandro@vet.mx</td><td>Mensual</td><td><span class="badge badge--active">Activo</span></td><td>01/05/2026</td><td><div class="table-actions"><button class="table-btn"><svg class="icon" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button class="table-btn table-btn--danger"><svg class="icon" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button></div></td></tr>
-        <tr><td><strong>Dra. María López</strong></td><td>maria.lopez@gmail.com</td><td>Mensual</td><td><span class="badge badge--active">Activo</span></td><td>28/04/2026</td><td><div class="table-actions"><button class="table-btn"><svg class="icon" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button class="table-btn table-btn--danger"><svg class="icon" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button></div></td></tr>
-        <tr><td><strong>Dr. Carlos Mendoza</strong></td><td>cmendoza@hotmail.com</td><td>Mensual</td><td><span class="badge badge--inactive">Inactivo</span></td><td>15/03/2026</td><td><div class="table-actions"><button class="table-btn"><svg class="icon" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button class="table-btn table-btn--danger"><svg class="icon" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button></div></td></tr>
-        <tr><td><strong>Dra. Patricia Herrera</strong></td><td>pattyh@outlook.com</td><td>Mensual</td><td><span class="badge badge--active">Activo</span></td><td>10/04/2026</td><td><div class="table-actions"><button class="table-btn"><svg class="icon" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button class="table-btn table-btn--danger"><svg class="icon" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button></div></td></tr>
-      </tbody></table></div>
+      <div class="data-table-header"><div class="data-table-header__title" id="miembrosCount">0 miembros</div><div class="data-table-search"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><input type="text" placeholder="Buscar miembro..." oninput="filterMiembros(this.value)"></div></div>
+      <div class="data-table-overflow"><table class="data-table"><thead><tr><th>Nombre</th><th>Correo</th><th>Plan</th><th>Estado</th><th>Registro</th></tr></thead><tbody id="miembrosBody"></tbody></table></div>
     </div>
   </div>
 
@@ -628,7 +623,36 @@ function loadPdfs(){db.collection('pdfs').orderBy('creado','desc').get().then(fu
 function loadNoticias(){db.collection('noticias').orderBy('creado','desc').get().then(function(s){var tb=document.querySelector('[data-page="noticias"] tbody');if(!tb)return;tb.innerHTML='';var n=0;s.forEach(function(d){var c=d.data();n++;var f=c.creado?new Date(c.creado).toLocaleDateString('es-MX'):'—';tb.innerHTML+='<tr><td><strong>'+c.titulo+'</strong></td><td>'+c.fuente+'</td><td>'+f+'</td><td><span class="badge '+be(c.estado)+'">'+c.estado+'</span></td><td><div class="table-actions"><button class="table-btn table-btn--danger" onclick="editNoticia(\''+d.id+'\')">'+editSvg+'</button><button class="table-btn table-btn--danger" onclick="deleteDoc(\'noticias\',\''+d.id+'\')">'+delSvg+'</button></div></td></tr>'});var h=document.querySelector('[data-page="noticias"] .data-table-header__title');if(h)h.textContent=n+' noticia'+(n!==1?'s':'')})}
 function loadNotificaciones(){db.collection('notificaciones').orderBy('creado','desc').get().then(function(s){var tb=document.querySelector('[data-page="notificaciones"] tbody');if(!tb)return;tb.innerHTML='';s.forEach(function(d){var c=d.data();var f=c.creado?new Date(c.creado).toLocaleDateString('es-MX'):'—';tb.innerHTML+='<tr><td><strong>'+c.emoji+' '+c.titulo+'</strong></td><td><span class="badge badge--info">'+c.tipo+'</span></td><td>'+f+'</td><td>Todos</td></tr>'})})}
 
-loadCursos();loadWebinars();loadPdfs();loadNoticias();loadNotificaciones();
+loadCursos();loadWebinars();loadPdfs();loadNoticias();loadNotificaciones();loadMiembros();
+
+var miembrosData=[];
+function loadMiembros(){
+  db.collection('miembros').get().then(function(s){
+    var tb=document.getElementById('miembrosBody');if(!tb)return;
+    tb.innerHTML='';miembrosData=[];var n=0;
+    s.forEach(function(d){
+      var c=d.data();c._id=d.id;miembrosData.push(c);n++;
+      var fecha=c.registro?new Date(c.registro).toLocaleDateString('es-MX'):'—';
+      var estado=c.estado||'activo';
+      tb.innerHTML+='<tr><td><strong>'+(c.nombre||'Sin nombre')+'</strong></td><td>'+(c.correo||'—')+'</td><td>'+(c.plan||'Mensual')+'</td><td><span class="badge '+(estado==='activo'?'badge--active':'badge--inactive')+'">'+estado.charAt(0).toUpperCase()+estado.slice(1)+'</span></td><td>'+fecha+'</td></tr>';
+    });
+    document.getElementById('miembrosCount').textContent=n+' miembro'+(n!==1?'s':'');
+    // Update dashboard stat
+    var dashStat=document.querySelector('[data-page="dashboard"] .dash-stat__val');
+    if(dashStat)dashStat.textContent=n;
+  });
+}
+function filterMiembros(q){
+  var tb=document.getElementById('miembrosBody');if(!tb)return;
+  q=q.toLowerCase();tb.innerHTML='';
+  miembrosData.forEach(function(c){
+    var match=(c.nombre||'').toLowerCase().indexOf(q)>-1||(c.correo||'').toLowerCase().indexOf(q)>-1;
+    if(!match)return;
+    var fecha=c.registro?new Date(c.registro).toLocaleDateString('es-MX'):'—';
+    var estado=c.estado||'activo';
+    tb.innerHTML+='<tr><td><strong>'+(c.nombre||'Sin nombre')+'</strong></td><td>'+(c.correo||'—')+'</td><td>'+(c.plan||'Mensual')+'</td><td><span class="badge '+(estado==='activo'?'badge--active':'badge--inactive')+'">'+estado.charAt(0).toUpperCase()+estado.slice(1)+'</span></td><td>'+fecha+'</td></tr>';
+  });
+}
 </script>
 </body>
 </html>
