@@ -315,7 +315,7 @@ body.dark #darkToggle .icon-sun{display:block}
     <div class="admin-login__title">Acceso Admin</div>
     <div class="admin-login__desc">Ingresa tus credenciales de administrador.</div>
     <div class="form-group"><label class="form-label">Correo electrónico</label><input class="form-input" type="email" placeholder="admin@globalvet.mx" id="adminEmail"></div>
-    <div class="form-group"><label class="form-label">Contraseña</label><input class="form-input" type="password" placeholder="••••••••" id="adminPass" onkeydown="if(event.key==='Enter')adminLogin()"></div>
+    <div class="form-group"><label class="form-label">Contraseña</label><input class="form-input" type="password" placeholder="••••••••" id="adminPass" onkeydown="if(event.key==='Enter')adminLoginFn()"></div>
     <button class="admin-login__btn" onclick="adminLoginFn()">Iniciar sesión</button>
     <div class="admin-login__error" id="adminError">Credenciales incorrectas. Intenta de nuevo.</div>
   </div>
@@ -576,9 +576,75 @@ function addClass(listId,countId){
 function updateCount(listId,countId){var n=document.getElementById(listId).children.length;document.getElementById(countId).textContent=n+' clase'+(n!==1?'s':'');}
 function toggleMaint(){var t=document.getElementById('maintToggle');t.classList.toggle('on');var on=t.classList.contains('on');document.getElementById('maintMsg').style.display=on?'block':'none';document.getElementById('maintStatus').innerHTML=on?'<span class="maint-status maint-status--on">⚠ Club en mantenimiento — los miembros no pueden acceder</span>':'<span class="maint-status maint-status--off">● Club activo — funcionando normalmente</span>';localStorage.setItem('gv-maint',on?'1':'0')}
 if(localStorage.getItem('gv-maint')==='1'){document.getElementById('maintToggle').classList.add('on');document.getElementById('maintMsg').style.display='block';document.getElementById('maintStatus').innerHTML='<span class="maint-status maint-status--on">⚠ Club en mantenimiento — los miembros no pueden acceder</span>'}
-function adminLoginFn(){var e=document.getElementById('adminEmail').value;var p=document.getElementById('adminPass').value;if(e==='admin@globalvet.mx'&&p==='GVAdmin2026'){document.getElementById('adminLogin').classList.remove('show');localStorage.setItem('gv-admin-logged','1');document.getElementById('adminError').classList.remove('show')}else{document.getElementById('adminError').classList.add('show')}}
-if(localStorage.getItem('gv-admin-logged')!=='1'){document.getElementById('adminLogin').classList.add('show')}
-function adminLogout(){localStorage.setItem('gv-admin-logged','0');document.getElementById('adminLogin').classList.add('show');document.getElementById('adminEmail').value='';document.getElementById('adminPass').value='';closeSidebar()}
+// === LOGIN REAL CON FIREBASE AUTH ===
+var auth=firebase.auth();
+function adminLoginFn(){
+  var e=document.getElementById('adminEmail').value.trim();
+  var p=document.getElementById('adminPass').value;
+  var err=document.getElementById('adminError');
+  if(!e||!p){err.textContent='Ingresa correo y contraseña';err.classList.add('show');return;}
+  err.classList.remove('show');
+  var btn=document.querySelector('.admin-login__btn');var btnTxt=btn.textContent;btn.textContent='Verificando...';btn.disabled=true;
+  auth.signInWithEmailAndPassword(e,p).then(function(cred){
+    // Verificar que sea admin consultando coleccion 'admins'
+    return firebase.firestore().collection('admins').doc(cred.user.uid).get();
+  }).then(function(doc){
+    btn.textContent=btnTxt;btn.disabled=false;
+    if(!doc.exists){
+      // No es admin, cerrar sesion
+      auth.signOut();
+      err.textContent='Esta cuenta no tiene permisos de administrador.';
+      err.classList.add('show');
+      return;
+    }
+    // Es admin, entrar
+    document.getElementById('adminLogin').classList.remove('show');
+    document.getElementById('adminPass').value='';
+    // Recargar datos
+    loadCursos();loadWebinars();loadPdfs();loadNoticias();loadNotificaciones();loadMiembros();loadActividadReciente();
+  }).catch(function(error){
+    btn.textContent=btnTxt;btn.disabled=false;
+    var msg='Credenciales incorrectas. Intenta de nuevo.';
+    if(error.code==='auth/user-not-found')msg='No existe una cuenta con ese correo.';
+    else if(error.code==='auth/wrong-password')msg='Contraseña incorrecta.';
+    else if(error.code==='auth/invalid-email')msg='Correo inválido.';
+    else if(error.code==='auth/too-many-requests')msg='Demasiados intentos fallidos. Espera unos minutos.';
+    else if(error.code==='auth/invalid-credential')msg='Credenciales incorrectas.';
+    err.textContent=msg;
+    err.classList.add('show');
+    console.error('Login error:',error);
+  });
+}
+// Verificar estado de autenticacion al cargar
+auth.onAuthStateChanged(function(user){
+  if(!user){
+    document.getElementById('adminLogin').classList.add('show');
+  }else{
+    // Verificar si es admin
+    firebase.firestore().collection('admins').doc(user.uid).get().then(function(doc){
+      if(doc.exists){
+        document.getElementById('adminLogin').classList.remove('show');
+        // Cargar datos si las funciones existen
+        if(typeof loadCursos==='function'){
+          loadCursos();loadWebinars();loadPdfs();loadNoticias();loadNotificaciones();loadMiembros();loadActividadReciente();
+        }
+      }else{
+        auth.signOut();
+        document.getElementById('adminLogin').classList.add('show');
+      }
+    }).catch(function(){
+      document.getElementById('adminLogin').classList.add('show');
+    });
+  }
+});
+function adminLogout(){
+  auth.signOut().then(function(){
+    document.getElementById('adminLogin').classList.add('show');
+    document.getElementById('adminEmail').value='';
+    document.getElementById('adminPass').value='';
+    closeSidebar();
+  });
+}
 function toggleDark(){document.body.classList.toggle('dark');localStorage.setItem('gv-admin-dark',document.body.classList.contains('dark')?'1':'0')}
 if(localStorage.getItem('gv-admin-dark')==='1')document.body.classList.add('dark');
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('active')}
@@ -620,7 +686,7 @@ function loadPdfs(){db.collection('pdfs').orderBy('creado','desc').get().then(fu
 function loadNoticias(){db.collection('noticias').orderBy('creado','desc').get().then(function(s){var tb=document.querySelector('[data-page="noticias"] tbody');if(!tb)return;tb.innerHTML='';var n=0;s.forEach(function(d){var c=d.data();n++;var f=c.creado?new Date(c.creado).toLocaleDateString('es-MX'):'—';tb.innerHTML+='<tr><td><strong>'+c.titulo+'</strong></td><td>'+c.fuente+'</td><td>'+f+'</td><td><span class="badge '+be(c.estado)+'">'+c.estado+'</span></td><td><div class="table-actions"><button class="table-btn table-btn--danger" onclick="editNoticia(\''+d.id+'\')">'+editSvg+'</button><button class="table-btn table-btn--danger" onclick="deleteDoc(\'noticias\',\''+d.id+'\')">'+delSvg+'</button></div></td></tr>'});var h=document.querySelector('[data-page="noticias"] .data-table-header__title');if(h)h.textContent=n+' noticia'+(n!==1?'s':'')})}
 function loadNotificaciones(){db.collection('notificaciones').orderBy('creado','desc').get().then(function(s){var tb=document.querySelector('[data-page="notificaciones"] tbody');if(!tb)return;tb.innerHTML='';s.forEach(function(d){var c=d.data();var f=c.creado?new Date(c.creado).toLocaleDateString('es-MX'):'—';tb.innerHTML+='<tr><td><strong>'+c.emoji+' '+c.titulo+'</strong></td><td><span class="badge badge--info">'+c.tipo+'</span></td><td>'+f+'</td><td>Todos</td></tr>'})})}
 
-loadCursos();loadWebinars();loadPdfs();loadNoticias();loadNotificaciones();loadMiembros();loadActividadReciente();
+// La carga de datos se ejecuta dentro de adminLoginFn() y onAuthStateChanged
 
 // Tiempo relativo en español
 function timeAgo(date){
