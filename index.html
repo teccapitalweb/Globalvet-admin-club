@@ -306,6 +306,11 @@ body.dark #darkToggle .icon-sun{display:block}
 </style>
 </head>
 <body>
+<div id="authSplash" style="position:fixed;inset:0;z-index:99999;background:#fff;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;transition:opacity 0.3s ease">
+  <div style="width:60px;height:60px;border:4px solid #ebe0f7;border-top-color:#4b1c71;border-radius:50%;animation:authspin 0.8s linear infinite"></div>
+  <div style="font-family:system-ui,sans-serif;font-size:14px;color:#7a4ca5;font-weight:500">Verificando sesión...</div>
+  <style>@keyframes authspin{to{transform:rotate(360deg)}}</style>
+</div>
 
 <!-- ADMIN LOGIN -->
 <div class="admin-login" id="adminLogin">
@@ -630,6 +635,9 @@ function adminLoginFn(){
 }
 // Verificar estado de autenticacion al cargar
 auth.onAuthStateChanged(function(user){
+  // Ocultar splash
+  var splash=document.getElementById('authSplash');
+  if(splash){splash.style.opacity='0';setTimeout(function(){splash.style.display='none';},300);}
   if(!user){
     adminVerified=false;
     document.getElementById('adminLogin').classList.add('show');
