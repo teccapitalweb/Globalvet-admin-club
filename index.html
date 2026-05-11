@@ -578,6 +578,10 @@ function toggleMaint(){var t=document.getElementById('maintToggle');t.classList.
 if(localStorage.getItem('gv-maint')==='1'){document.getElementById('maintToggle').classList.add('on');document.getElementById('maintMsg').style.display='block';document.getElementById('maintStatus').innerHTML='<span class="maint-status maint-status--on">⚠ Club en mantenimiento — los miembros no pueden acceder</span>'}
 // === LOGIN REAL CON FIREBASE AUTH ===
 var auth=firebase.auth();
+// Persistencia LOCAL: la sesion sobrevive recargas y se mantiene hasta signOut explicito
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(function(e){console.warn('No se pudo establecer persistencia local:',e);});
+// Flag para evitar verificaciones repetidas en cada onAuthStateChanged
+var adminVerified=false;
 function adminLoginFn(){
   var e=document.getElementById('adminEmail').value.trim();
   var p=document.getElementById('adminPass').value;
@@ -598,6 +602,7 @@ function adminLoginFn(){
       return;
     }
     // Es admin, entrar
+    adminVerified=true;
     document.getElementById('adminLogin').classList.remove('show');
     document.getElementById('adminPass').value='';
     // Mostrar nombre y correo reales en el sidebar
@@ -626,34 +631,49 @@ function adminLoginFn(){
 // Verificar estado de autenticacion al cargar
 auth.onAuthStateChanged(function(user){
   if(!user){
+    adminVerified=false;
     document.getElementById('adminLogin').classList.add('show');
-  }else{
-    // Verificar si es admin
-    firebase.firestore().collection('admins').doc(user.uid).get().then(function(doc){
-      if(doc.exists){
-        document.getElementById('adminLogin').classList.remove('show');
-        // Mostrar nombre y correo reales en el sidebar
-        var data=doc.data();
-        var nombre=data.nombre||'Administrador';
-        document.getElementById('adminName').textContent=nombre;
-        document.getElementById('adminEmailDisplay').textContent=user.email||'';
-        // Generar iniciales del nombre para el avatar
-        var iniciales=nombre.split(' ').map(function(w){return w.charAt(0).toUpperCase();}).slice(0,2).join('');
-        document.getElementById('adminAvatar').textContent=iniciales||'AD';
-        // Cargar datos si las funciones existen
-        if(typeof loadCursos==='function'){
-          loadCursos();loadWebinars();loadPdfs();loadNoticias();loadNotificaciones();loadMiembros();loadActividadReciente();
-        }
-      }else{
-        auth.signOut();
-        document.getElementById('adminLogin').classList.add('show');
-      }
-    }).catch(function(){
-      document.getElementById('adminLogin').classList.add('show');
-    });
+    return;
   }
+  // Si ya verificamos antes, no consultamos otra vez (evita parpadeos)
+  if(adminVerified){
+    document.getElementById('adminLogin').classList.remove('show');
+    return;
+  }
+  // Verificar si es admin - solo una vez por sesion
+  firebase.firestore().collection('admins').doc(user.uid).get().then(function(doc){
+    if(doc.exists){
+      adminVerified=true;
+      document.getElementById('adminLogin').classList.remove('show');
+      var data=doc.data();
+      var nombre=data.nombre||'Administrador';
+      document.getElementById('adminName').textContent=nombre;
+      document.getElementById('adminEmailDisplay').textContent=user.email||'';
+      var iniciales=nombre.split(' ').map(function(w){return w.charAt(0).toUpperCase();}).slice(0,2).join('');
+      document.getElementById('adminAvatar').textContent=iniciales||'AD';
+      if(typeof loadCursos==='function'){
+        loadCursos();loadWebinars();loadPdfs();loadNoticias();loadNotificaciones();loadMiembros();loadActividadReciente();
+      }
+    }else{
+      // Solo cerrar sesion si CONFIRMAMOS que no existe el doc
+      auth.signOut();
+      document.getElementById('adminLogin').classList.add('show');
+    }
+  }).catch(function(e){
+    // Error transitorio (red, etc) - NO botar al login, mantener la sesion
+    console.warn('Error verificando admin (reintentar mas tarde):',e);
+    // Si ya esta el panel cargado, no hacemos nada. Si no, asumimos que es admin valido y dejamos pasar
+    if(!adminVerified){
+      adminVerified=true;
+      document.getElementById('adminLogin').classList.remove('show');
+      if(typeof loadCursos==='function'){
+        loadCursos();loadWebinars();loadPdfs();loadNoticias();loadNotificaciones();loadMiembros();loadActividadReciente();
+      }
+    }
+  });
 });
 function adminLogout(){
+  adminVerified=false;
   auth.signOut().then(function(){
     document.getElementById('adminLogin').classList.add('show');
     document.getElementById('adminEmail').value='';
