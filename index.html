@@ -372,9 +372,9 @@ body.dark #darkToggle .icon-sun{display:block}
   <div class="page-content active" data-page="dashboard">
     <div class="page-header"><div class="page-header__left"><h1 class="page-header__title">Dashboard</h1><p class="page-header__desc">Vista general de GlobalVet México Club.</p></div></div>
     <div class="dash-stats">
-      <div class="dash-stat"><div><div class="dash-stat__val">127</div><div class="dash-stat__label">Miembros activos</div><span class="dash-stat__change dash-stat__change--up">↑ 12%</span></div><div class="dash-stat__icon"><svg class="icon" viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div></div>
-      <div class="dash-stat"><div><div class="dash-stat__val">18</div><div class="dash-stat__label">Cursos publicados</div><span class="dash-stat__change dash-stat__change--up">↑ 3 nuevos</span></div><div class="dash-stat__icon"><svg class="icon" viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13"/></svg></div></div>
-      <div class="dash-stat"><div><div class="dash-stat__val">5</div><div class="dash-stat__label">Webinars programados</div><span class="dash-stat__change dash-stat__change--up">↑ 2 esta semana</span></div><div class="dash-stat__icon"><svg class="icon" viewBox="0 0 24 24"><path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg></div></div>
+      <div class="dash-stat"><div><div class="dash-stat__val" id="statMiembros">—</div><div class="dash-stat__label">Miembros activos</div><span class="dash-stat__change dash-stat__change--up" id="statMiembrosChange" style="display:none"></span></div><div class="dash-stat__icon"><svg class="icon" viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div></div>
+      <div class="dash-stat"><div><div class="dash-stat__val" id="statCursos">—</div><div class="dash-stat__label">Cursos publicados</div><span class="dash-stat__change dash-stat__change--up" id="statCursosChange" style="display:none"></span></div><div class="dash-stat__icon"><svg class="icon" viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13"/></svg></div></div>
+      <div class="dash-stat"><div><div class="dash-stat__val" id="statWebinars">—</div><div class="dash-stat__label">Webinars programados</div><span class="dash-stat__change dash-stat__change--up" id="statWebinarsChange" style="display:none"></span></div><div class="dash-stat__icon"><svg class="icon" viewBox="0 0 24 24"><path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg></div></div>
     </div>
     <div class="page-header__left" style="margin-bottom:18px"><h2 style="font-family:var(--font-display);font-size:1.05rem;font-weight:700">Acciones rápidas</h2></div>
     <div class="quick-grid">
@@ -456,9 +456,6 @@ body.dark #darkToggle .icon-sun{display:block}
     <div class="data-table-wrap" style="margin-top:24px">
       <div class="data-table-header"><div class="data-table-header__title">Historial de notificaciones</div></div>
       <div class="data-table-overflow"><table class="data-table"><thead><tr><th>Notificación</th><th>Tipo</th><th>Enviada</th><th>Alcance</th></tr></thead><tbody>
-        <tr><td><strong>Nuevo webinar: Dolor Crónico</strong></td><td><span class="badge badge--info">Webinar</span></td><td>05/05/2026</td><td>127 miembros</td></tr>
-        <tr><td><strong>Material nuevo: Guía Analgesia</strong></td><td><span class="badge badge--purple">Material</span></td><td>01/05/2026</td><td>124 miembros</td></tr>
-        <tr><td><strong>Descuento exclusivo mayo</strong></td><td><span class="badge badge--pending">Promoción</span></td><td>28/04/2026</td><td>120 miembros</td></tr>
       </tbody></table></div>
     </div>
   </div>
@@ -619,7 +616,7 @@ function adminLoginFn(){
     var iniciales=nombre.split(' ').map(function(w){return w.charAt(0).toUpperCase();}).slice(0,2).join('');
     document.getElementById('adminAvatar').textContent=iniciales||'AD';
     // Recargar datos
-    loadCursos();loadWebinars();loadPdfs();loadNoticias();loadNotificaciones();loadMiembros();loadActividadReciente();
+    loadCursos();loadWebinars();loadPdfs();loadNoticias();loadNotificaciones();loadMiembros();loadActividadReciente();loadDashboardStats();
   }).catch(function(error){
     btn.textContent=btnTxt;btn.disabled=false;
     var msg='Credenciales incorrectas. Intenta de nuevo.';
@@ -660,7 +657,7 @@ auth.onAuthStateChanged(function(user){
       var iniciales=nombre.split(' ').map(function(w){return w.charAt(0).toUpperCase();}).slice(0,2).join('');
       document.getElementById('adminAvatar').textContent=iniciales||'AD';
       if(typeof loadCursos==='function'){
-        loadCursos();loadWebinars();loadPdfs();loadNoticias();loadNotificaciones();loadMiembros();loadActividadReciente();
+        loadCursos();loadWebinars();loadPdfs();loadNoticias();loadNotificaciones();loadMiembros();loadActividadReciente();loadDashboardStats();
       }
     }else{
       // Solo cerrar sesion si CONFIRMAMOS que no existe el doc
@@ -675,7 +672,7 @@ auth.onAuthStateChanged(function(user){
       adminVerified=true;
       document.getElementById('adminLogin').classList.remove('show');
       if(typeof loadCursos==='function'){
-        loadCursos();loadWebinars();loadPdfs();loadNoticias();loadNotificaciones();loadMiembros();loadActividadReciente();
+        loadCursos();loadWebinars();loadPdfs();loadNoticias();loadNotificaciones();loadMiembros();loadActividadReciente();loadDashboardStats();
       }
     }
   });
@@ -745,6 +742,44 @@ function timeAgo(date){
   if(dy<7)return 'Hace '+dy+' días';
   if(dy<30)return 'Hace '+Math.floor(dy/7)+' semana'+(Math.floor(dy/7)!==1?'s':'');
   return d.toLocaleDateString('es-MX');
+}
+
+function loadDashboardStats(){
+  // Miembros activos
+  db.collection('miembros').get().then(function(s){
+    var n=0;
+    s.forEach(function(d){var c=d.data();if(!c.estado||c.estado==='activo')n++;});
+    var el=document.getElementById('statMiembros');if(el)el.textContent=n;
+  }).catch(function(){var el=document.getElementById('statMiembros');if(el)el.textContent='0';});
+  // Cursos publicados
+  db.collection('cursos').get().then(function(s){
+    var n=0;
+    s.forEach(function(d){var c=d.data();if(!c.estado||c.estado==='Publicado')n++;});
+    var el=document.getElementById('statCursos');if(el)el.textContent=n;
+    // Indicador de nuevos: cursos creados en los ultimos 30 dias
+    var nuevos=0;var hace30=Date.now()-30*24*60*60*1000;
+    s.forEach(function(d){var c=d.data();if(c.creado&&new Date(c.creado).getTime()>hace30)nuevos++;});
+    var chg=document.getElementById('statCursosChange');
+    if(chg&&nuevos>0){chg.textContent='↑ '+nuevos+' nuevo'+(nuevos!==1?'s':'');chg.style.display='inline-block';}
+  }).catch(function(){var el=document.getElementById('statCursos');if(el)el.textContent='0';});
+  // Webinars programados (futuros)
+  db.collection('webinars').get().then(function(s){
+    var n=0;var hoy=new Date();hoy.setHours(0,0,0,0);
+    var estaSemana=0;
+    var seteHoy=hoy.getTime();
+    var sieteDias=seteHoy+7*24*60*60*1000;
+    s.forEach(function(d){var c=d.data();
+      // Solo contar futuros (no grabados)
+      if(c.grabacion||c.estado==='Grabado')return;
+      if(!c.fecha)return;
+      var fw=new Date(c.fecha+'T00:00:00').getTime();
+      if(fw>=seteHoy)n++;
+      if(fw>=seteHoy&&fw<=sieteDias)estaSemana++;
+    });
+    var el=document.getElementById('statWebinars');if(el)el.textContent=n;
+    var chg=document.getElementById('statWebinarsChange');
+    if(chg&&estaSemana>0){chg.textContent='↑ '+estaSemana+' esta semana';chg.style.display='inline-block';}
+  }).catch(function(){var el=document.getElementById('statWebinars');if(el)el.textContent='0';});
 }
 
 function loadActividadReciente(){
