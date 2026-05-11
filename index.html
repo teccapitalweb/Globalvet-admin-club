@@ -380,11 +380,8 @@ body.dark #darkToggle .icon-sun{display:block}
     </div>
     <div class="data-table-wrap">
       <div class="data-table-header"><div class="data-table-header__title">Actividad reciente</div></div>
-      <div class="data-table-overflow"><table class="data-table"><thead><tr><th>Acción</th><th>Detalle</th><th>Fecha</th></tr></thead><tbody>
-        <tr><td><span class="badge badge--purple">Curso</span></td><td>Se publicó "Cirugía de Tejidos Blandos"</td><td>Hace 2 horas</td></tr>
-        <tr><td><span class="badge badge--info">Webinar</span></td><td>Se programó "Dolor Crónico en Caninos"</td><td>Hace 5 horas</td></tr>
-        <tr><td><span class="badge badge--active">Miembro</span></td><td>Nuevo miembro: Dr. Alejandro Ruiz</td><td>Ayer</td></tr>
-        <tr><td><span class="badge badge--pending">PDF</span></td><td>Se subió "Guía de Analgesia Multimodal"</td><td>Hace 2 días</td></tr>
+      <div class="data-table-overflow"><table class="data-table"><thead><tr><th>Acción</th><th>Detalle</th><th>Fecha</th></tr></thead><tbody id="actividadRecienteBody">
+        <tr><td colspan="3" style="text-align:center;color:#9c9c9c;padding:24px">Cargando actividad...</td></tr>
       </tbody></table></div>
     </div>
   </div>
@@ -623,7 +620,59 @@ function loadPdfs(){db.collection('pdfs').orderBy('creado','desc').get().then(fu
 function loadNoticias(){db.collection('noticias').orderBy('creado','desc').get().then(function(s){var tb=document.querySelector('[data-page="noticias"] tbody');if(!tb)return;tb.innerHTML='';var n=0;s.forEach(function(d){var c=d.data();n++;var f=c.creado?new Date(c.creado).toLocaleDateString('es-MX'):'—';tb.innerHTML+='<tr><td><strong>'+c.titulo+'</strong></td><td>'+c.fuente+'</td><td>'+f+'</td><td><span class="badge '+be(c.estado)+'">'+c.estado+'</span></td><td><div class="table-actions"><button class="table-btn table-btn--danger" onclick="editNoticia(\''+d.id+'\')">'+editSvg+'</button><button class="table-btn table-btn--danger" onclick="deleteDoc(\'noticias\',\''+d.id+'\')">'+delSvg+'</button></div></td></tr>'});var h=document.querySelector('[data-page="noticias"] .data-table-header__title');if(h)h.textContent=n+' noticia'+(n!==1?'s':'')})}
 function loadNotificaciones(){db.collection('notificaciones').orderBy('creado','desc').get().then(function(s){var tb=document.querySelector('[data-page="notificaciones"] tbody');if(!tb)return;tb.innerHTML='';s.forEach(function(d){var c=d.data();var f=c.creado?new Date(c.creado).toLocaleDateString('es-MX'):'—';tb.innerHTML+='<tr><td><strong>'+c.emoji+' '+c.titulo+'</strong></td><td><span class="badge badge--info">'+c.tipo+'</span></td><td>'+f+'</td><td>Todos</td></tr>'})})}
 
-loadCursos();loadWebinars();loadPdfs();loadNoticias();loadNotificaciones();loadMiembros();
+loadCursos();loadWebinars();loadPdfs();loadNoticias();loadNotificaciones();loadMiembros();loadActividadReciente();
+
+// Tiempo relativo en español
+function timeAgo(date){
+  if(!date)return '—';
+  var d=date instanceof Date?date:new Date(date);
+  var s=Math.floor((Date.now()-d.getTime())/1000);
+  if(s<60)return 'Hace un momento';
+  var m=Math.floor(s/60);if(m<60)return 'Hace '+m+' minuto'+(m!==1?'s':'');
+  var h=Math.floor(m/60);if(h<24)return 'Hace '+h+' hora'+(h!==1?'s':'');
+  var dy=Math.floor(h/24);
+  if(dy===1)return 'Ayer';
+  if(dy<7)return 'Hace '+dy+' días';
+  if(dy<30)return 'Hace '+Math.floor(dy/7)+' semana'+(Math.floor(dy/7)!==1?'s':'');
+  return d.toLocaleDateString('es-MX');
+}
+
+function loadActividadReciente(){
+  var actividades=[];
+  // Promesas paralelas para cada coleccion
+  var promesas=[
+    db.collection('cursos').get().then(function(s){s.forEach(function(d){var c=d.data();if(c.creado)actividades.push({tipo:'Curso',badge:'badge--purple',detalle:'Se publicó "'+(c.nombre||'Sin nombre')+'"',fecha:c.creado});})}),
+    db.collection('webinars').get().then(function(s){s.forEach(function(d){var c=d.data();if(c.creado)actividades.push({tipo:'Webinar',badge:'badge--info',detalle:'Se programó "'+(c.titulo||'Sin título')+'"',fecha:c.creado});})}),
+    db.collection('pdfs').get().then(function(s){s.forEach(function(d){var c=d.data();if(c.creado)actividades.push({tipo:'PDF',badge:'badge--pending',detalle:'Se subió "'+(c.titulo||'Sin título')+'"',fecha:c.creado});})}),
+    db.collection('noticias').get().then(function(s){s.forEach(function(d){var c=d.data();if(c.creado)actividades.push({tipo:'Noticia',badge:'badge--info',detalle:'Se publicó "'+(c.titulo||'Sin título')+'"',fecha:c.creado});})}),
+    db.collection('notificaciones').get().then(function(s){s.forEach(function(d){var c=d.data();if(c.creado)actividades.push({tipo:'Notificación',badge:'badge--purple',detalle:(c.emoji||'📢')+' '+(c.titulo||'Sin título'),fecha:c.creado});})}),
+    db.collection('miembros').get().then(function(s){s.forEach(function(d){var c=d.data();var f=c.registro||c.creado;if(f)actividades.push({tipo:'Miembro',badge:'badge--active',detalle:'Nuevo miembro: '+(c.nombre||'Sin nombre'),fecha:f});})}),
+    db.collection('certificados').get().then(function(s){s.forEach(function(d){var c=d.data();var f=c.fechaTxt&&c.fechaEmision?c.fechaEmision.toDate?c.fechaEmision.toDate():c.fechaEmision:null;if(f)actividades.push({tipo:'Certificado',badge:'badge--active',detalle:'Certificado emitido a '+(c.nombre||'')+(c.curso?' - '+c.curso:''),fecha:f});})}).catch(function(){})
+  ];
+  Promise.all(promesas).then(function(){
+    // Ordenar por fecha descendente y tomar los 10 mas recientes
+    actividades.sort(function(a,b){
+      var fa=a.fecha instanceof Date?a.fecha:new Date(a.fecha);
+      var fb=b.fecha instanceof Date?b.fecha:new Date(b.fecha);
+      return fb.getTime()-fa.getTime();
+    });
+    var top=actividades.slice(0,10);
+    var tb=document.getElementById('actividadRecienteBody');
+    if(!tb)return;
+    if(top.length===0){
+      tb.innerHTML='<tr><td colspan="3" style="text-align:center;color:#9c9c9c;padding:24px">Aún no hay actividad registrada</td></tr>';
+      return;
+    }
+    tb.innerHTML='';
+    top.forEach(function(a){
+      tb.innerHTML+='<tr><td><span class="badge '+a.badge+'">'+a.tipo+'</span></td><td>'+a.detalle+'</td><td>'+timeAgo(a.fecha)+'</td></tr>';
+    });
+  }).catch(function(e){
+    console.error('Error cargando actividad:',e);
+    var tb=document.getElementById('actividadRecienteBody');
+    if(tb)tb.innerHTML='<tr><td colspan="3" style="text-align:center;color:#d63838;padding:24px">Error al cargar la actividad</td></tr>';
+  });
+}
 
 var miembrosData=[];
 function loadMiembros(){
