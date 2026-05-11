@@ -349,7 +349,7 @@ body.dark #darkToggle .icon-sun{display:block}
     </ul>
   </div>
   <div class="sidebar__spacer"></div>
-  <div class="sidebar__user"><div class="sidebar__avatar">AD</div><div class="sidebar__user-info"><h4>Administrador</h4><span>admin@globalvet.mx</span></div></div>
+  <div class="sidebar__user"><div class="sidebar__avatar" id="adminAvatar">AD</div><div class="sidebar__user-info"><h4 id="adminName">Administrador</h4><span id="adminEmailDisplay">admin@globalvet.mx</span></div></div>
   <button class="sidebar__logout" onclick="adminLogout()"><svg class="icon" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg> Cerrar sesión</button>
 </aside>
 
@@ -600,6 +600,14 @@ function adminLoginFn(){
     // Es admin, entrar
     document.getElementById('adminLogin').classList.remove('show');
     document.getElementById('adminPass').value='';
+    // Mostrar nombre y correo reales en el sidebar
+    var data=doc.data();
+    var nombre=data.nombre||'Administrador';
+    var user=auth.currentUser;
+    document.getElementById('adminName').textContent=nombre;
+    document.getElementById('adminEmailDisplay').textContent=user.email||'';
+    var iniciales=nombre.split(' ').map(function(w){return w.charAt(0).toUpperCase();}).slice(0,2).join('');
+    document.getElementById('adminAvatar').textContent=iniciales||'AD';
     // Recargar datos
     loadCursos();loadWebinars();loadPdfs();loadNoticias();loadNotificaciones();loadMiembros();loadActividadReciente();
   }).catch(function(error){
@@ -624,6 +632,14 @@ auth.onAuthStateChanged(function(user){
     firebase.firestore().collection('admins').doc(user.uid).get().then(function(doc){
       if(doc.exists){
         document.getElementById('adminLogin').classList.remove('show');
+        // Mostrar nombre y correo reales en el sidebar
+        var data=doc.data();
+        var nombre=data.nombre||'Administrador';
+        document.getElementById('adminName').textContent=nombre;
+        document.getElementById('adminEmailDisplay').textContent=user.email||'';
+        // Generar iniciales del nombre para el avatar
+        var iniciales=nombre.split(' ').map(function(w){return w.charAt(0).toUpperCase();}).slice(0,2).join('');
+        document.getElementById('adminAvatar').textContent=iniciales||'AD';
         // Cargar datos si las funciones existen
         if(typeof loadCursos==='function'){
           loadCursos();loadWebinars();loadPdfs();loadNoticias();loadNotificaciones();loadMiembros();loadActividadReciente();
