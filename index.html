@@ -87,6 +87,12 @@ body{font-family:var(--font-body);color:var(--gray-900);background:var(--gray-50
 .data-table-search{display:flex;align-items:center;gap:8px;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius-xs);padding:8px 14px;min-width:220px}
 .data-table-search svg{color:var(--gray-400);width:16px;height:16px;flex-shrink:0}
 .data-table-search input{border:none;background:none;outline:none;font-size:0.82rem;font-family:var(--font-body);color:var(--gray-700);width:100%}
+.miembro-filter{background:transparent;border:1px solid var(--gray-200);color:var(--gray-600);padding:6px 14px;border-radius:100px;font-size:0.75rem;font-weight:500;cursor:pointer;transition:all 0.2s;font-family:var(--font-body)}
+.miembro-filter:hover{border-color:var(--purple-300);color:var(--purple-700)}
+.miembro-filter.active{background:var(--purple-900);border-color:var(--purple-900);color:#fff}
+body.dark .miembro-filter{border-color:var(--dk-border);color:var(--dk-muted)}
+body.dark .miembro-filter:hover{border-color:var(--purple-400);color:var(--purple-300)}
+body.dark .miembro-filter.active{background:var(--purple-700);border-color:var(--purple-700);color:#fff}
 .data-table{width:100%;border-collapse:collapse}
 .data-table th{padding:12px 24px;text-align:left;font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--gray-400);background:var(--gray-50);border-bottom:1px solid var(--gray-200)}
 .data-table td{padding:14px 24px;font-size:0.85rem;color:var(--gray-700);border-bottom:1px solid var(--gray-50)}
@@ -393,10 +399,18 @@ body.dark #darkToggle .icon-sun{display:block}
 
   <!-- MIEMBROS -->
   <div class="page-content" data-page="miembros">
-    <div class="page-header"><div class="page-header__left"><h1 class="page-header__title">Miembros</h1><p class="page-header__desc">Gestiona los miembros registrados del Club.</p></div></div>
+    <div class="page-header"><div class="page-header__left"><h1 class="page-header__title">Miembros</h1><p class="page-header__desc">Gestiona los miembros registrados del Club.</p></div><button class="btn-primary" onclick="exportarMiembrosCSV()"><svg class="icon" viewBox="0 0 24 24" style="width:16px;height:16px;stroke:white"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg> Exportar CSV</button></div>
     <div class="data-table-wrap">
-      <div class="data-table-header"><div class="data-table-header__title" id="miembrosCount">0 miembros</div><div class="data-table-search"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><input type="text" placeholder="Buscar miembro..." oninput="filterMiembros(this.value)"></div></div>
-      <div class="data-table-overflow"><table class="data-table"><thead><tr><th>Nombre</th><th>Correo</th><th>Plan</th><th>Estado</th><th>Registro</th></tr></thead><tbody id="miembrosBody"></tbody></table></div>
+      <div class="data-table-header"><div class="data-table-header__title" id="miembrosCount">0 miembros</div><div class="data-table-search"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><input type="text" id="miembrosSearchInput" placeholder="Buscar miembro..." oninput="applyMiembrosFilters()"></div></div>
+      <div style="display:flex;gap:8px;padding:14px 22px 0;flex-wrap:wrap" id="miembrosFilters">
+        <button class="miembro-filter active" data-filter="all" onclick="setMiembroFilter('all')">Todos</button>
+        <button class="miembro-filter" data-filter="activa" onclick="setMiembroFilter('activa')">Activos</button>
+        <button class="miembro-filter" data-filter="trial" onclick="setMiembroFilter('trial')">En trial</button>
+        <button class="miembro-filter" data-filter="cancelada" onclick="setMiembroFilter('cancelada')">Cancelados</button>
+        <button class="miembro-filter" data-filter="pago_fallido" onclick="setMiembroFilter('pago_fallido')">Pago fallido</button>
+        <button class="miembro-filter" data-filter="sin_suscripcion" onclick="setMiembroFilter('sin_suscripcion')">Sin suscripción</button>
+      </div>
+      <div class="data-table-overflow"><table class="data-table"><thead><tr><th>Nombre</th><th>Correo</th><th>Plan</th><th>Estado suscripción</th><th>Vence/Renueva</th><th>Registro</th></tr></thead><tbody id="miembrosBody"></tbody></table></div>
     </div>
   </div>
 
@@ -820,32 +834,120 @@ function loadActividadReciente(){
 }
 
 var miembrosData=[];
+var _miembroFilter='all';
+var TRIAL_DIAS_ADMIN=7;
+
+// Calcula el estado de suscripcion de un miembro (igual logica que el Club)
+function calcMiembroSubStatus(m){
+  var sub=m&&m.suscripcion?m.suscripcion:null;
+  if(sub&&sub.estado){
+    if(sub.estado==='activa')return{key:'activa',label:'Activa',color:'#22c55e',plan:sub.plan||'mensual',cancelacionProgramada:sub.cancelacionProgramada,cancelaEn:sub.cancelaEn,activadaEn:sub.activadaEn};
+    if(sub.estado==='pago_fallido')return{key:'pago_fallido',label:'Pago fallido',color:'#dc2626',plan:sub.plan||'mensual'};
+    if(sub.estado==='cancelada')return{key:'cancelada',label:'Cancelada',color:'#6b7280',plan:sub.plan||'mensual'};
+    if(sub.estado==='incompleta')return{key:'pago_fallido',label:'Incompleta',color:'#dc2626'};
+  }
+  // Sin suscripcion -> trial o expirado
+  var registro=m&&m.registro?m.registro:null;
+  if(!registro)return{key:'sin_suscripcion',label:'Sin datos',color:'#6b7280'};
+  var diasTranscurridos=Math.floor((Date.now()-new Date(registro).getTime())/(1000*60*60*24));
+  var diasRestantes=TRIAL_DIAS_ADMIN-diasTranscurridos;
+  if(diasRestantes>0)return{key:'trial',label:'Trial ('+diasRestantes+'d)',color:'#a855f7'};
+  return{key:'sin_suscripcion',label:'Sin suscripción',color:'#9ca3af'};
+}
+
 function loadMiembros(){
   db.collection('miembros').get().then(function(s){
-    var tb=document.getElementById('miembrosBody');if(!tb)return;
-    tb.innerHTML='';miembrosData=[];var n=0;
-    s.forEach(function(d){
-      var c=d.data();c._id=d.id;miembrosData.push(c);n++;
-      var fecha=c.registro?new Date(c.registro).toLocaleDateString('es-MX'):'—';
-      var estado=c.estado||'activo';
-      tb.innerHTML+='<tr><td><strong>'+(c.nombre||'Sin nombre')+'</strong></td><td>'+(c.correo||'—')+'</td><td>'+(c.plan||'Mensual')+'</td><td><span class="badge '+(estado==='activo'?'badge--active':'badge--inactive')+'">'+estado.charAt(0).toUpperCase()+estado.slice(1)+'</span></td><td>'+fecha+'</td></tr>';
-    });
-    document.getElementById('miembrosCount').textContent=n+' miembro'+(n!==1?'s':'');
-    // Update dashboard stat
+    miembrosData=[];
+    s.forEach(function(d){var c=d.data();c._id=d.id;miembrosData.push(c);});
+    applyMiembrosFilters();
+    // Update dashboard stat (cuenta total)
     var dashStat=document.querySelector('[data-page="dashboard"] .dash-stat__val');
-    if(dashStat)dashStat.textContent=n;
+    if(dashStat)dashStat.textContent=miembrosData.length;
   });
 }
-function filterMiembros(q){
+
+function setMiembroFilter(filter){
+  _miembroFilter=filter;
+  var btns=document.querySelectorAll('.miembro-filter');
+  btns.forEach(function(b){
+    if(b.getAttribute('data-filter')===filter)b.classList.add('active');
+    else b.classList.remove('active');
+  });
+  applyMiembrosFilters();
+}
+
+function applyMiembrosFilters(){
   var tb=document.getElementById('miembrosBody');if(!tb)return;
-  q=q.toLowerCase();tb.innerHTML='';
+  var input=document.getElementById('miembrosSearchInput');
+  var q=input?input.value.toLowerCase():'';
+  tb.innerHTML='';
+  var n=0;
   miembrosData.forEach(function(c){
+    // Filtro de busqueda
     var match=(c.nombre||'').toLowerCase().indexOf(q)>-1||(c.correo||'').toLowerCase().indexOf(q)>-1;
     if(!match)return;
+    // Filtro de estado
+    var st=calcMiembroSubStatus(c);
+    if(_miembroFilter!=='all'&&st.key!==_miembroFilter)return;
+    n++;
     var fecha=c.registro?new Date(c.registro).toLocaleDateString('es-MX'):'—';
-    var estado=c.estado||'activo';
-    tb.innerHTML+='<tr><td><strong>'+(c.nombre||'Sin nombre')+'</strong></td><td>'+(c.correo||'—')+'</td><td>'+(c.plan||'Mensual')+'</td><td><span class="badge '+(estado==='activo'?'badge--active':'badge--inactive')+'">'+estado.charAt(0).toUpperCase()+estado.slice(1)+'</span></td><td>'+fecha+'</td></tr>';
+    var planLabel=st.plan?(st.plan==='anual'?'Anual':'Mensual'):'—';
+    // Vence/Renueva
+    var vence='—';
+    if(st.cancelacionProgramada&&st.cancelaEn){vence='Cancela '+new Date(st.cancelaEn).toLocaleDateString('es-MX');}
+    else if(st.key==='activa'&&st.activadaEn){
+      var fa=new Date(st.activadaEn);
+      var prox=new Date(fa);
+      if(st.plan==='anual')prox.setFullYear(prox.getFullYear()+1);
+      else prox.setMonth(prox.getMonth()+1);
+      vence='Renueva '+prox.toLocaleDateString('es-MX');
+    }
+    else if(st.key==='trial'){
+      var fr=new Date(c.registro);fr.setDate(fr.getDate()+TRIAL_DIAS_ADMIN);
+      vence='Trial vence '+fr.toLocaleDateString('es-MX');
+    }
+    var dot='<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:'+st.color+';margin-right:6px;vertical-align:middle"></span>';
+    tb.innerHTML+='<tr><td><strong>'+(c.nombre||'Sin nombre')+'</strong></td><td>'+(c.correo||'—')+'</td><td>'+planLabel+'</td><td>'+dot+'<span style="color:'+st.color+';font-weight:500">'+st.label+'</span>'+(st.cancelacionProgramada?' <span style="font-size:0.65rem;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:8px;margin-left:4px">cancela pronto</span>':'')+'</td><td style="font-size:0.78rem;color:var(--gray-500)">'+vence+'</td><td>'+fecha+'</td></tr>';
   });
+  if(n===0){
+    tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--gray-400)">Ningún miembro coincide con los filtros</td></tr>';
+  }
+  document.getElementById('miembrosCount').textContent=n+' miembro'+(n!==1?'s':'')+(_miembroFilter!=='all'||q?' (filtrado de '+miembrosData.length+')':'');
+}
+
+// Mantener compatibilidad con el oninput original (por si quedo en alguna parte)
+function filterMiembros(){applyMiembrosFilters();}
+
+// Exportar a CSV
+function exportarMiembrosCSV(){
+  if(!miembrosData||miembrosData.length===0){alert('No hay miembros para exportar');return;}
+  var headers=['Nombre','Correo','Plan','Estado','Vence/Renueva','Fecha de registro','Cancelación programada','Stripe Customer ID','Stripe Subscription ID'];
+  var rows=[headers];
+  miembrosData.forEach(function(c){
+    var st=calcMiembroSubStatus(c);
+    var planLabel=st.plan?(st.plan==='anual'?'Anual':'Mensual'):'';
+    var vence='';
+    if(st.cancelacionProgramada&&st.cancelaEn)vence='Cancela '+new Date(st.cancelaEn).toLocaleDateString('es-MX');
+    else if(st.key==='activa'&&st.activadaEn){var fa=new Date(st.activadaEn);var prox=new Date(fa);if(st.plan==='anual')prox.setFullYear(prox.getFullYear()+1);else prox.setMonth(prox.getMonth()+1);vence='Renueva '+prox.toLocaleDateString('es-MX');}
+    else if(st.key==='trial'){var fr=new Date(c.registro);fr.setDate(fr.getDate()+TRIAL_DIAS_ADMIN);vence='Trial vence '+fr.toLocaleDateString('es-MX');}
+    var fecha=c.registro?new Date(c.registro).toLocaleDateString('es-MX'):'';
+    var sub=c.suscripcion||{};
+    rows.push([c.nombre||'',c.correo||'',planLabel,st.label,vence,fecha,sub.cancelacionProgramada?'Sí':'No',sub.stripeCustomerId||'',sub.stripeSubscriptionId||'']);
+  });
+  // Convertir a CSV (escapando comillas)
+  var csv=rows.map(function(r){return r.map(function(cell){
+    var s=String(cell==null?'':cell);
+    if(s.indexOf('"')!==-1||s.indexOf(',')!==-1||s.indexOf('\n')!==-1){s='"'+s.replace(/"/g,'""')+'"';}
+    return s;
+  }).join(',');}).join('\n');
+  // BOM para que Excel lea bien los acentos
+  var blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  var fechaArchivo=new Date().toISOString().slice(0,10);
+  a.href=url;a.download='miembros-globalvet-'+fechaArchivo+'.csv';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 </script>
 </body>
