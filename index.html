@@ -467,6 +467,7 @@ body.dark #darkToggle .icon-sun{display:block}
         <button class="miembro-filter" data-filter="sin_suscripcion" onclick="setMiembroFilter('sin_suscripcion')">Sin suscripción</button>
       </div>
       <div class="data-table-overflow"><table class="data-table"><thead><tr><th>Nombre</th><th>Correo</th><th>Plan</th><th>Estado suscripción</th><th>Vence/Renueva</th><th>Registro</th></tr></thead><tbody id="miembrosBody"></tbody></table></div>
+      <div id="miembrosPagination"></div>
     </div>
   </div>
 
@@ -513,7 +514,7 @@ body.dark #darkToggle .icon-sun{display:block}
       <div class="form-card__title">Enviar notificación</div><div class="form-card__desc">Se enviará a todos los miembros activos del Club.</div>
       <div class="form-group"><label class="form-label">Título de la notificación</label><input class="form-input" placeholder="Ej: Nuevo curso disponible" id="notifTitle"></div>
       <div class="form-group"><label class="form-label">Mensaje</label><textarea class="form-input form-textarea" placeholder="Escribe el mensaje que verán los miembros..." id="notifMsg"></textarea></div>
-      <div class="form-row"><div class="form-group"><label class="form-label">Tipo</label><select class="form-input form-select" id="notifType"><option value="General">📢 General</option><option value="Nuevo curso">📚 Nuevo curso</option><option value="Webinar">🎥 Webinar</option><option value="Material nuevo">📄 Material nuevo</option><option value="Promoción">🏷️ Promoción</option></select></div><div class="form-group"><label class="form-label">Prioridad</label><select class="form-input form-select"><option>Normal</option><option>Importante</option><option>Urgente</option></select></div></div>
+      <div class="form-row"><div class="form-group"><label class="form-label">Tipo</label><select class="form-input form-select" id="notifType"><option value="General">📢 General</option><option value="Nuevo curso">📚 Nuevo curso</option><option value="Webinar">🎥 Webinar</option><option value="Material nuevo">📄 Material nuevo</option><option value="Promoción">🏷️ Promoción</option></select></div><div class="form-group"><label class="form-label">Audiencia</label><select class="form-input form-select" id="notifAudience"><option value="todos">👥 Todos los miembros</option><option value="activos">✅ Solo activos (con suscripción)</option><option value="trial">⏳ Solo en trial</option><option value="cancelados">🛑 Solo cancelados (reconquistar)</option><option value="fallidos">⚠️ Solo con pago fallido</option><option value="sin_sub">⚪ Solo sin suscripción</option></select></div></div>
       <div class="notif-preview" id="notifPreview">
         <div class="notif-preview__label">Vista previa</div>
         <div class="notif-preview__card">
@@ -521,7 +522,7 @@ body.dark #darkToggle .icon-sun{display:block}
           <div class="notif-preview__text"><h4 id="prevTitle"><span id="prevEmoji">📢</span> Título de la notificación</h4><p id="prevMsg">Mensaje de la notificación...</p></div>
         </div>
       </div>
-      <div class="form-actions" style="margin-top:20px"><button class="btn-primary" onclick="saveNotificacion()"><svg class="icon" viewBox="0 0 24 24" style="width:16px;height:16px;stroke:white"><path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg> Enviar a todos</button></div>
+      <div class="form-actions" style="margin-top:20px"><button class="btn-primary" onclick="saveNotificacion()"><svg class="icon" viewBox="0 0 24 24" style="width:16px;height:16px;stroke:white"><path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg> Enviar notificación</button></div>
     </div>
     <div class="data-table-wrap" style="margin-top:24px">
       <div class="data-table-header"><div class="data-table-header__title">Historial de notificaciones</div></div>
@@ -826,7 +827,7 @@ function saveCurso(){var v=getInputs('cursoModal');if(!v[0]){showToast('Ingresa 
 function saveWebinar(){var v=getInputs('webinarModal');if(!v[0]){showToast('Ingresa el título','error');return;}var isEdit=!!editId.webinars;var ref=isEdit?db.collection('webinars').doc(editId.webinars):db.collection('webinars').doc();var data={titulo:v[0],descripcion:v[1],ponente:v[2],estado:v[3],fecha:v[4],hora:v[5],duracion:v[6],cupo:v[7],link:v[8],imagen:v[9],cv:v[10],grabacion:v[11],actualizado:new Date().toISOString()};if(!isEdit)data.creado=new Date().toISOString();ref.set(data,{merge:true}).then(function(){editId.webinars=null;closeModal('webinarModal');loadWebinars();showToast('Webinar guardado','success')}).catch(function(e){showToast('Error: '+e.message,'error')})}
 function savePdf(){var v=getInputs('pdfModal');if(!v[0]){showToast('Ingresa el título','error');return;}var isEdit=!!editId.pdfs;var ref=isEdit?db.collection('pdfs').doc(editId.pdfs):db.collection('pdfs').doc();var data={titulo:v[0],descripcion:v[1],categoria:v[2],estado:v[3],archivo:v[4],imagen:v[5],actualizado:new Date().toISOString()};if(!isEdit)data.creado=new Date().toISOString();ref.set(data,{merge:true}).then(function(){editId.pdfs=null;closeModal('pdfModal');loadPdfs();showToast('Material guardado','success')}).catch(function(e){showToast('Error: '+e.message,'error')})}
 function saveNoticia(){var v=getInputs('newsModal');if(!v[0]){showToast('Ingresa el título','error');return;}var isEdit=!!editId.noticias;var ref=isEdit?db.collection('noticias').doc(editId.noticias):db.collection('noticias').doc();var data={titulo:v[0],contenido:v[1],fuente:v[2],estado:v[3],imagen:v[4],actualizado:new Date().toISOString()};if(!isEdit)data.creado=new Date().toISOString();ref.set(data,{merge:true}).then(function(){editId.noticias=null;closeModal('newsModal');loadNoticias();showToast('Noticia guardada','success')}).catch(function(e){showToast('Error: '+e.message,'error')})}
-function saveNotificacion(){var t=document.getElementById('notifTitle').value,m=document.getElementById('notifMsg').value,tp=document.getElementById('notifType').value;if(!t||!m){showToast('Ingresa título y mensaje','error');return;}db.collection('notificaciones').add({titulo:t,mensaje:m,tipo:tp,emoji:emojiMap[tp]||'📢',creado:new Date().toISOString()}).then(function(){document.getElementById('notifTitle').value='';document.getElementById('notifMsg').value='';loadNotificaciones();showToast('Notificación enviada','success')}).catch(function(e){showToast('Error: '+e.message,'error')})}
+function saveNotificacion(){var t=document.getElementById('notifTitle').value,m=document.getElementById('notifMsg').value,tp=document.getElementById('notifType').value;var aud=document.getElementById('notifAudience').value||'todos';if(!t||!m){showToast('Ingresa título y mensaje','error');return;}db.collection('notificaciones').add({titulo:t,mensaje:m,tipo:tp,emoji:emojiMap[tp]||'📢',audiencia:aud,creado:new Date().toISOString()}).then(function(){document.getElementById('notifTitle').value='';document.getElementById('notifMsg').value='';document.getElementById('notifAudience').value='todos';loadNotificaciones();var audLabel={todos:'todos los miembros',activos:'miembros activos',trial:'miembros en trial',cancelados:'miembros cancelados',fallidos:'miembros con pago fallido',sin_sub:'miembros sin suscripción'};showToast('Notificación enviada a '+(audLabel[aud]||'todos'),'success')}).catch(function(e){showToast('Error: '+e.message,'error')})}
 
 function deleteDoc(col,id){if(confirm('¿Eliminar este registro?')){db.collection(col).doc(id).delete().then(function(){if(col==='cursos')loadCursos();if(col==='webinars')loadWebinars();if(col==='pdfs')loadPdfs();if(col==='noticias')loadNoticias();if(col==='notificaciones')loadNotificaciones()})}}
 function be(e){return(e==='Publicado'||e==='Publicada'||e==='Próximo')?'badge--active':(e==='Borrador'||e==='Pendiente'||e==='Oculto')?'badge--pending':'badge--inactive'}
@@ -1070,6 +1071,176 @@ function loadActividadReciente(){
   });
 }
 
+// ===== MODAL DE CONFIRMACIÓN REUTILIZABLE =====
+function showConfirm(opts){
+  return new Promise(function(resolve){
+    var existing=document.getElementById('gvConfirmModal');
+    if(existing)existing.remove();
+    var ov=document.createElement('div');ov.id='gvConfirmModal';
+    ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:99998;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;transition:opacity 0.2s';
+    var color=opts.danger?'#dc2626':'#4b1c71';
+    var emoji=opts.emoji||(opts.danger?'⚠':'❓');
+    ov.innerHTML='<div style="background:#fff;border-radius:16px;max-width:420px;width:100%;padding:28px 26px;box-shadow:0 24px 60px rgba(0,0,0,0.25);transform:scale(0.95);transition:transform 0.2s">'+
+      '<div style="font-size:38px;text-align:center;margin-bottom:12px">'+emoji+'</div>'+
+      '<h3 style="font-family:var(--font-display);font-size:1.15rem;font-weight:700;color:var(--gray-900);margin:0 0 10px;text-align:center">'+opts.title+'</h3>'+
+      '<p style="font-size:0.9rem;color:var(--gray-500);line-height:1.55;margin:0 0 20px;text-align:center">'+opts.message+'</p>'+
+      (opts.input?'<input id="gvConfirmInput" type="'+(opts.inputType||'text')+'" placeholder="'+(opts.placeholder||'')+'" value="'+(opts.defaultValue||'')+'" style="width:100%;padding:10px 12px;border:1px solid var(--gray-200);border-radius:8px;font-size:0.88rem;margin-bottom:16px;font-family:var(--font-body)">':'')+
+      '<div style="display:flex;gap:8px"><button id="gvConfirmCancel" class="btn-ghost" style="flex:1">'+(opts.cancelText||'Cancelar')+'</button>'+
+      '<button id="gvConfirmOk" class="btn-primary" style="flex:1;background:'+color+'">'+(opts.okText||'Confirmar')+'</button></div>'+
+      '</div>';
+    document.body.appendChild(ov);
+    setTimeout(function(){ov.style.opacity='1';ov.querySelector('div').style.transform='scale(1)';if(opts.input){document.getElementById('gvConfirmInput').focus();}},10);
+    document.getElementById('gvConfirmCancel').onclick=function(){ov.remove();resolve(null);};
+    document.getElementById('gvConfirmOk').onclick=function(){
+      var val=opts.input?document.getElementById('gvConfirmInput').value:true;
+      ov.remove();resolve(val);
+    };
+  });
+}
+
+// ===== ACCIONES ADMIN: gestión de suscripciones =====
+function adminCancelarSub(uid){
+  showConfirm({
+    emoji:'🛑',danger:true,
+    title:'Cancelar suscripción',
+    message:'La suscripción se cancelará al final del periodo facturado actual. El miembro mantendrá acceso hasta esa fecha.',
+    okText:'Sí, cancelar',cancelText:'No'
+  }).then(function(ok){
+    if(!ok)return;
+    showToast('Cancelando...','info');
+    fetch(WEBHOOK_URL+'/cancel-subscription',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({uid:uid})
+    }).then(function(r){return r.json();}).then(function(d){
+      if(d.ok){
+        showToast('Suscripción cancelada','success');
+        closeModal('miembroDetalleModal');
+        loadMiembros();loadDashboardStats();
+      }else{showToast('Error: '+(d.error||'desconocido'),'error');}
+    }).catch(function(e){showToast('Error de red: '+e.message,'error');});
+  });
+}
+
+function adminReactivarSub(uid){
+  showConfirm({
+    emoji:'♻',
+    title:'Reactivar suscripción',
+    message:'Se quitará la cancelación programada y la suscripción seguirá renovándose normalmente.',
+    okText:'Sí, reactivar',cancelText:'No'
+  }).then(function(ok){
+    if(!ok)return;
+    showToast('Reactivando...','info');
+    fetch(WEBHOOK_URL+'/reactivate-subscription',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({uid:uid})
+    }).then(function(r){return r.json();}).then(function(d){
+      if(d.ok){
+        showToast('Suscripción reactivada','success');
+        closeModal('miembroDetalleModal');
+        loadMiembros();loadDashboardStats();
+      }else{showToast('Error: '+(d.error||'desconocido'),'error');}
+    }).catch(function(e){showToast('Error de red: '+e.message,'error');});
+  });
+}
+
+function adminRefund(uid){
+  showConfirm({
+    emoji:'💸',danger:true,
+    title:'Reembolso total',
+    message:'Se reembolsará el último pago del miembro. Esta acción NO se puede deshacer. Stripe procesará el reembolso en 5-10 días hábiles.',
+    input:true,placeholder:'Motivo (opcional)',
+    okText:'Reembolsar',cancelText:'Cancelar'
+  }).then(function(motivo){
+    if(motivo===null)return;
+    showToast('Procesando reembolso...','info');
+    fetch(WEBHOOK_URL+'/admin/refund',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({uid:uid,reason:motivo||'requested_by_customer',adminUid:auth.currentUser?auth.currentUser.uid:null})
+    }).then(function(r){return r.json();}).then(function(d){
+      if(d.ok){
+        showToast('Reembolso emitido: $'+d.monto+' '+d.moneda.toUpperCase(),'success');
+        closeModal('miembroDetalleModal');
+      }else{showToast('Error: '+(d.error||'desconocido'),'error');}
+    }).catch(function(e){showToast('Error de red: '+e.message,'error');});
+  });
+}
+
+function adminRegalarTiempo(uid){
+  showConfirm({
+    emoji:'🎁',
+    title:'Regalar tiempo gratis',
+    message:'Otorgar acceso gratuito al Club por X días adicionales.',
+    input:true,inputType:'number',placeholder:'Cantidad de días (ej: 30)',defaultValue:'30',
+    okText:'Regalar',cancelText:'Cancelar'
+  }).then(function(dias){
+    if(!dias||isNaN(parseInt(dias))||parseInt(dias)<=0){
+      if(dias!==null)showToast('Días inválidos','error');
+      return;
+    }
+    showConfirm({
+      emoji:'📝',
+      title:'Motivo del regalo',
+      message:'Anota brevemente la razón (queda en el historial del miembro).',
+      input:true,placeholder:'Ej: Cortesía por error de cobro',
+      defaultValue:'Cortesía'
+    }).then(function(motivo){
+      if(motivo===null)return;
+      showToast('Procesando regalo...','info');
+      fetch(WEBHOOK_URL+'/admin/regalar-tiempo',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({uid:uid,dias:parseInt(dias),motivo:motivo||'Cortesía',adminUid:auth.currentUser?auth.currentUser.uid:null})
+      }).then(function(r){return r.json();}).then(function(d){
+        if(d.ok){
+          var fecha=new Date(d.hasta).toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'});
+          showToast('🎁 '+dias+' días gratis hasta el '+fecha,'success');
+          closeModal('miembroDetalleModal');
+          loadMiembros();loadDashboardStats();
+        }else{showToast('Error: '+(d.error||'desconocido'),'error');}
+      }).catch(function(e){showToast('Error de red: '+e.message,'error');});
+    });
+  });
+}
+
+function adminAsignarCurso(uid){
+  // Cargar cursos disponibles
+  db.collection('cursos').where('estado','==','activo').get().then(function(snap){
+    if(snap.empty){showToast('No hay cursos activos','error');return;}
+    var options='';
+    snap.forEach(function(d){
+      var c=d.data();
+      options+='<option value="'+d.id+'" data-nombre="'+(c.nombre||'').replace(/"/g,'&quot;')+'">'+(c.nombre||'Sin nombre')+'</option>';
+    });
+    var ov=document.createElement('div');ov.id='gvAsignarModal';
+    ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:99998;display:flex;align-items:center;justify-content:center;padding:20px';
+    ov.innerHTML='<div style="background:#fff;border-radius:16px;max-width:420px;width:100%;padding:28px 26px;box-shadow:0 24px 60px rgba(0,0,0,0.25)">'+
+      '<div style="font-size:38px;text-align:center;margin-bottom:12px">🎓</div>'+
+      '<h3 style="font-family:var(--font-display);font-size:1.15rem;font-weight:700;color:var(--gray-900);margin:0 0 10px;text-align:center">Asignar curso</h3>'+
+      '<p style="font-size:0.88rem;color:var(--gray-500);line-height:1.55;margin:0 0 20px;text-align:center">Elige el curso a otorgar al miembro. Recibirá una notificación.</p>'+
+      '<select id="gvAsignarSelect" style="width:100%;padding:10px 12px;border:1px solid var(--gray-200);border-radius:8px;font-size:0.88rem;margin-bottom:16px;font-family:var(--font-body)">'+options+'</select>'+
+      '<div style="display:flex;gap:8px"><button onclick="document.getElementById(\'gvAsignarModal\').remove()" class="btn-ghost" style="flex:1">Cancelar</button>'+
+      '<button onclick="confirmarAsignacionCurso(\''+uid+'\')" class="btn-primary" style="flex:1">Asignar</button></div>'+
+      '</div>';
+    document.body.appendChild(ov);
+  });
+}
+
+function confirmarAsignacionCurso(uid){
+  var sel=document.getElementById('gvAsignarSelect');
+  var cursoId=sel.value;
+  var cursoNombre=sel.options[sel.selectedIndex].getAttribute('data-nombre');
+  document.getElementById('gvAsignarModal').remove();
+  showToast('Asignando curso...','info');
+  fetch(WEBHOOK_URL+'/admin/asignar-curso',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({uid:uid,cursoId:cursoId,cursoNombre:cursoNombre,adminUid:auth.currentUser?auth.currentUser.uid:null})
+  }).then(function(r){return r.json();}).then(function(d){
+    if(d.ok){
+      showToast('Curso "'+cursoNombre+'" asignado','success');
+      closeModal('miembroDetalleModal');
+    }else{showToast('Error: '+(d.error||'desconocido'),'error');}
+  }).catch(function(e){showToast('Error de red: '+e.message,'error');});
+}
+
 // ===== TOAST SYSTEM (reemplazo a alert) =====
 function showToast(msg,type){
   type=type||'info';
@@ -1154,10 +1325,35 @@ function openMiembroDetalle(uid){
     html+='<div style="grid-column:1/-1"><span style="color:var(--gray-400)">UID:</span> <code style="font-size:0.72rem;color:var(--gray-600)">'+uid+'</code></div>';
     html+='</div></div>';
 
-    // Botones de acción
-    html+='<div style="display:flex;gap:8px;flex-wrap:wrap">';
-    html+='<a href="https://dashboard.stripe.com/test/customers/'+(sub.stripeCustomerId||'')+'" target="_blank" class="btn-ghost" style="text-decoration:none">Ver en Stripe</a>';
-    html+='<button class="btn-ghost" onclick="window.location.href=\'mailto:'+(m.correo||'')+'\'">Enviar email</button>';
+    // Botones de acción admin
+    html+='<div style="font-size:0.72rem;color:var(--gray-500);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin:24px 0 10px">Acciones administrativas</div>';
+    html+='<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px">';
+    // Cancelar / Reactivar
+    if(sub.estado==='activa' && !sub.cancelacionProgramada){
+      html+='<button class="btn-ghost" onclick="adminCancelarSub(\''+uid+'\')" style="color:#f59e0b;border-color:#fed7aa">🛑 Cancelar suscripción</button>';
+    }else if(sub.cancelacionProgramada){
+      html+='<button class="btn-ghost" onclick="adminReactivarSub(\''+uid+'\')" style="color:#22c55e;border-color:#86efac">♻ Reactivar suscripción</button>';
+    }else{
+      html+='<button class="btn-ghost" disabled style="opacity:0.5;cursor:not-allowed">Sin suscripción activa</button>';
+    }
+    // Refund
+    if(sub.stripeCustomerId){
+      html+='<button class="btn-ghost" onclick="adminRefund(\''+uid+'\')" style="color:#dc2626;border-color:#fca5a5">💸 Reembolso total</button>';
+    }else{
+      html+='<button class="btn-ghost" disabled style="opacity:0.5;cursor:not-allowed">Sin pagos para reembolsar</button>';
+    }
+    // Regalar tiempo
+    html+='<button class="btn-ghost" onclick="adminRegalarTiempo(\''+uid+'\')" style="color:#a855f7;border-color:#d8b4fe">🎁 Regalar tiempo gratis</button>';
+    // Asignar curso
+    html+='<button class="btn-ghost" onclick="adminAsignarCurso(\''+uid+'\')" style="color:#4b1c71;border-color:#dbb6ee">🎓 Asignar curso</button>';
+    html+='</div>';
+
+    // Botones de acción rápida (links externos)
+    html+='<div style="display:flex;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--gray-100)">';
+    if(sub.stripeCustomerId){
+      html+='<a href="https://dashboard.stripe.com/test/customers/'+sub.stripeCustomerId+'" target="_blank" class="btn-ghost" style="text-decoration:none;flex:1;text-align:center">Ver en Stripe Dashboard</a>';
+    }
+    html+='<button class="btn-ghost" onclick="window.location.href=\'mailto:'+(m.correo||'')+'\'" style="flex:1">Enviar email</button>';
     html+='</div>';
 
     cont.innerHTML=html;
@@ -1167,6 +1363,7 @@ function openMiembroDetalle(uid){
   });
 }
 
+var WEBHOOK_URL='https://webhook-globalvet-j-production.up.railway.app';
 var miembrosData=[];
 var _miembroFilter='all';
 var TRIAL_DIAS_ADMIN=7;
@@ -1210,43 +1407,81 @@ function setMiembroFilter(filter){
   applyMiembrosFilters();
 }
 
-function applyMiembrosFilters(){
+var _miembrosPage=1;
+var MIEMBROS_POR_PAGINA=25;
+function applyMiembrosFilters(resetPage){
+  if(resetPage!==false)_miembrosPage=1;
   var tb=document.getElementById('miembrosBody');if(!tb)return;
   var input=document.getElementById('miembrosSearchInput');
   var q=input?input.value.toLowerCase():'';
-  tb.innerHTML='';
-  var n=0;
-  miembrosData.forEach(function(c){
-    // Filtro de busqueda
+  // 1) Filtrar
+  var filtrados=miembrosData.filter(function(c){
     var match=(c.nombre||'').toLowerCase().indexOf(q)>-1||(c.correo||'').toLowerCase().indexOf(q)>-1;
-    if(!match)return;
-    // Filtro de estado
+    if(!match)return false;
     var st=calcMiembroSubStatus(c);
-    if(_miembroFilter!=='all'&&st.key!==_miembroFilter)return;
-    n++;
+    if(_miembroFilter!=='all'&&st.key!==_miembroFilter)return false;
+    return true;
+  });
+  // 2) Paginar
+  var totalPaginas=Math.max(1,Math.ceil(filtrados.length/MIEMBROS_POR_PAGINA));
+  if(_miembrosPage>totalPaginas)_miembrosPage=totalPaginas;
+  var inicio=(_miembrosPage-1)*MIEMBROS_POR_PAGINA;
+  var fin=inicio+MIEMBROS_POR_PAGINA;
+  var pagina=filtrados.slice(inicio,fin);
+  // 3) Renderizar
+  tb.innerHTML='';
+  pagina.forEach(function(c){
+    var st=calcMiembroSubStatus(c);
     var fecha=c.registro?new Date(c.registro).toLocaleDateString('es-MX'):'—';
     var planLabel=st.plan?(st.plan==='anual'?'Anual':'Mensual'):'—';
-    // Vence/Renueva
     var vence='—';
     if(st.cancelacionProgramada&&st.cancelaEn){vence='Cancela '+new Date(st.cancelaEn).toLocaleDateString('es-MX');}
     else if(st.key==='activa'&&st.activadaEn){
-      var fa=new Date(st.activadaEn);
-      var prox=new Date(fa);
+      var fa=new Date(st.activadaEn);var prox=new Date(fa);
       if(st.plan==='anual')prox.setFullYear(prox.getFullYear()+1);
       else prox.setMonth(prox.getMonth()+1);
       vence='Renueva '+prox.toLocaleDateString('es-MX');
-    }
-    else if(st.key==='trial'){
+    }else if(st.key==='trial'){
       var fr=new Date(c.registro);fr.setDate(fr.getDate()+TRIAL_DIAS_ADMIN);
       vence='Trial vence '+fr.toLocaleDateString('es-MX');
     }
     var dot='<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:'+st.color+';margin-right:6px;vertical-align:middle"></span>';
     tb.innerHTML+='<tr style="cursor:pointer" onclick="openMiembroDetalle(\''+c._id+'\')"><td><strong>'+(c.nombre||'Sin nombre')+'</strong></td><td>'+(c.correo||'—')+'</td><td>'+planLabel+'</td><td>'+dot+'<span style="color:'+st.color+';font-weight:500">'+st.label+'</span>'+(st.cancelacionProgramada?' <span style="font-size:0.65rem;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:8px;margin-left:4px">cancela pronto</span>':'')+'</td><td style="font-size:0.78rem;color:var(--gray-500)">'+vence+'</td><td>'+fecha+'</td></tr>';
   });
-  if(n===0){
+  if(filtrados.length===0){
     tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--gray-400)">Ningún miembro coincide con los filtros</td></tr>';
   }
-  document.getElementById('miembrosCount').textContent=n+' miembro'+(n!==1?'s':'')+(_miembroFilter!=='all'||q?' (filtrado de '+miembrosData.length+')':'');
+  // 4) Contador
+  var totalText=filtrados.length+' miembro'+(filtrados.length!==1?'s':'');
+  if(_miembroFilter!=='all'||q)totalText+=' (filtrado de '+miembrosData.length+')';
+  document.getElementById('miembrosCount').textContent=totalText;
+  // 5) Paginación visual
+  renderMiembrosPagination(filtrados.length,totalPaginas);
+}
+
+function renderMiembrosPagination(total,totalPaginas){
+  var pag=document.getElementById('miembrosPagination');
+  if(!pag)return;
+  if(totalPaginas<=1){pag.innerHTML='';return;}
+  var inicio=(_miembrosPage-1)*MIEMBROS_POR_PAGINA+1;
+  var fin=Math.min(_miembrosPage*MIEMBROS_POR_PAGINA,total);
+  var html='<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-top:1px solid var(--gray-100);font-size:0.82rem;color:var(--gray-500)">';
+  html+='<div>Mostrando <strong>'+inicio+'-'+fin+'</strong> de '+total+'</div>';
+  html+='<div style="display:flex;gap:6px;align-items:center">';
+  html+='<button onclick="cambiarPagMiembros(-1)" '+(_miembrosPage<=1?'disabled':'')+' class="btn-ghost" style="padding:6px 12px;font-size:0.8rem;'+(_miembrosPage<=1?'opacity:0.4;cursor:not-allowed':'')+'">← Anterior</button>';
+  html+='<span style="padding:0 10px;color:var(--gray-700);font-weight:600">Página '+_miembrosPage+' de '+totalPaginas+'</span>';
+  html+='<button onclick="cambiarPagMiembros(1)" '+(_miembrosPage>=totalPaginas?'disabled':'')+' class="btn-ghost" style="padding:6px 12px;font-size:0.8rem;'+(_miembrosPage>=totalPaginas?'opacity:0.4;cursor:not-allowed':'')+'">Siguiente →</button>';
+  html+='</div></div>';
+  pag.innerHTML=html;
+}
+
+function cambiarPagMiembros(delta){
+  _miembrosPage+=delta;
+  if(_miembrosPage<1)_miembrosPage=1;
+  applyMiembrosFilters(false);
+  // Scroll suave al inicio de la tabla
+  var tabla=document.getElementById('miembrosBody');
+  if(tabla)tabla.closest('.data-table-wrap').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 // Mantener compatibilidad con el oninput original (por si quedo en alguna parte)
