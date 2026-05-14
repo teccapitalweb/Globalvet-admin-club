@@ -71,6 +71,32 @@ body{font-family:var(--font-body);color:var(--gray-900);background:var(--gray-50
 
 /* DASHBOARD STATS */
 .dash-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px}
+.biz-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+@media(max-width:980px){.biz-metrics{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.biz-metrics{grid-template-columns:1fr}}
+.biz-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-sm);padding:20px;transition:all var(--transition)}
+.biz-card:hover{border-color:var(--purple-200);box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.biz-card__label{font-size:0.7rem;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-bottom:8px}
+.biz-card__val{font-family:var(--font-display);font-size:1.6rem;font-weight:700;color:var(--purple-900);line-height:1;margin-bottom:6px}
+.biz-card__sub{font-size:0.72rem;color:var(--gray-400)}
+.biz-card--good .biz-card__val{color:#16a34a}
+.biz-card--warn .biz-card__val{color:#f59e0b}
+.biz-card--danger .biz-card__val{color:#dc2626}
+body.dark .biz-card{background:var(--dk-card);border-color:var(--dk-border)}
+body.dark .biz-card__val{color:var(--purple-300)}
+body.dark .biz-card__label{color:var(--dk-muted)}
+.biz-section-title{font-family:var(--font-display);font-size:0.95rem;font-weight:700;color:var(--gray-700);margin:24px 0 14px;display:flex;align-items:center;gap:8px}
+body.dark .biz-section-title{color:var(--dk-text)}
+.biz-section-title span{font-size:0.7rem;color:var(--gray-400);font-weight:500;background:var(--gray-50);padding:3px 10px;border-radius:50px}
+body.dark .biz-section-title span{background:var(--dk-card);color:var(--dk-muted)}
+.dist-bar{display:flex;height:10px;border-radius:10px;overflow:hidden;background:var(--gray-100);margin:14px 0 10px}
+body.dark .dist-bar{background:var(--dk-border)}
+.dist-bar__seg{transition:all 0.4s}
+.dist-bar__seg:hover{filter:brightness(1.1)}
+.dist-legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px}
+.dist-legend__item{display:flex;align-items:center;gap:6px;font-size:0.74rem;color:var(--gray-600)}
+body.dark .dist-legend__item{color:var(--dk-muted)}
+.dist-legend__dot{width:10px;height:10px;border-radius:50%}
 .dash-stat{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-sm);padding:24px;display:flex;align-items:flex-start;justify-content:space-between;transition:all var(--transition)}
 .dash-stat:hover{border-color:var(--purple-200);box-shadow:var(--shadow-md)}
 .dash-stat__val{font-size:1.8rem;font-weight:700;color:var(--gray-900);line-height:1;margin-bottom:4px}
@@ -360,7 +386,7 @@ body.dark #darkToggle .icon-sun{display:block}
     </ul>
   </div>
   <div class="sidebar__spacer"></div>
-  <div class="sidebar__user"><div class="sidebar__avatar" id="adminAvatar">AD</div><div class="sidebar__user-info"><h4 id="adminName">Administrador</h4><span id="adminEmailDisplay">admin@globalvet.mx</span></div></div>
+  <div class="sidebar__user"><div class="sidebar__avatar" id="adminAvatar">·</div><div class="sidebar__user-info"><h4 id="adminName">&nbsp;</h4><span id="adminEmailDisplay">&nbsp;</span></div></div>
   <button class="sidebar__logout" onclick="adminLogout()"><svg class="icon" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg> Cerrar sesión</button>
 </aside>
 
@@ -382,6 +408,36 @@ body.dark #darkToggle .icon-sun{display:block}
       <div class="dash-stat"><div><div class="dash-stat__val" id="statCursos">—</div><div class="dash-stat__label">Cursos publicados</div><span class="dash-stat__change dash-stat__change--up" id="statCursosChange" style="display:none"></span></div><div class="dash-stat__icon"><svg class="icon" viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13"/></svg></div></div>
       <div class="dash-stat"><div><div class="dash-stat__val" id="statWebinars">—</div><div class="dash-stat__label">Webinars programados</div><span class="dash-stat__change dash-stat__change--up" id="statWebinarsChange" style="display:none"></span></div><div class="dash-stat__icon"><svg class="icon" viewBox="0 0 24 24"><path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg></div></div>
     </div>
+    <h3 class="biz-section-title">💰 Métricas de negocio <span id="bizPeriod">en tiempo real</span></h3>
+    <div class="biz-metrics">
+      <div class="biz-card biz-card--good"><div class="biz-card__label">MRR</div><div class="biz-card__val" id="bizMRR">—</div><div class="biz-card__sub" id="bizMRRSub">Ingreso mensual recurrente</div></div>
+      <div class="biz-card"><div class="biz-card__label">ARR proyectado</div><div class="biz-card__val" id="bizARR">—</div><div class="biz-card__sub">Ingreso anual recurrente</div></div>
+      <div class="biz-card biz-card--warn"><div class="biz-card__label">Churn Rate</div><div class="biz-card__val" id="bizChurn">—</div><div class="biz-card__sub" id="bizChurnSub">Cancelaciones este mes</div></div>
+      <div class="biz-card"><div class="biz-card__label">Conversión Trial</div><div class="biz-card__val" id="bizConv">—</div><div class="biz-card__sub" id="bizConvSub">Trial → suscripción pagada</div></div>
+    </div>
+
+    <h3 class="biz-section-title">👥 Estado de los miembros</h3>
+    <div class="data-table-wrap" style="margin-bottom:28px;padding:20px 22px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div style="font-size:0.85rem;font-weight:600;color:var(--gray-700)" id="distTotalLabel">Total: — miembros</div>
+        <div style="font-size:0.75rem;color:var(--gray-400)" id="distActivePct">— activos</div>
+      </div>
+      <div class="dist-bar" id="distBar">
+        <div class="dist-bar__seg" style="background:#22c55e;width:0%" id="distActivos" title="Activos"></div>
+        <div class="dist-bar__seg" style="background:#a855f7;width:0%" id="distTrials" title="En trial"></div>
+        <div class="dist-bar__seg" style="background:#f59e0b;width:0%" id="distFallidos" title="Pago fallido"></div>
+        <div class="dist-bar__seg" style="background:#6b7280;width:0%" id="distCancelados" title="Cancelados"></div>
+        <div class="dist-bar__seg" style="background:#e5e7eb;width:0%" id="distSinSub" title="Sin suscripción"></div>
+      </div>
+      <div class="dist-legend">
+        <div class="dist-legend__item"><span class="dist-legend__dot" style="background:#22c55e"></span><span id="legActivos">Activos: 0</span></div>
+        <div class="dist-legend__item"><span class="dist-legend__dot" style="background:#a855f7"></span><span id="legTrials">Trial: 0</span></div>
+        <div class="dist-legend__item"><span class="dist-legend__dot" style="background:#f59e0b"></span><span id="legFallidos">Pago fallido: 0</span></div>
+        <div class="dist-legend__item"><span class="dist-legend__dot" style="background:#6b7280"></span><span id="legCancelados">Cancelados: 0</span></div>
+        <div class="dist-legend__item"><span class="dist-legend__dot" style="background:#e5e7eb"></span><span id="legSinSub">Sin sub: 0</span></div>
+      </div>
+    </div>
+
     <div class="page-header__left" style="margin-bottom:18px"><h2 style="font-family:var(--font-display);font-size:1.05rem;font-weight:700">Acciones rápidas</h2></div>
     <div class="quick-grid">
       <div class="quick-card" onclick="nav('cursos')"><div class="quick-card__icon"><svg class="icon" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg></div><div><div class="quick-card__title">Nuevo curso</div><div class="quick-card__desc">Crear y publicar un curso</div></div></div>
@@ -490,7 +546,7 @@ body.dark #darkToggle .icon-sun{display:block}
       <div id="maintMsg" style="display:none;margin-top:16px">
         <div class="form-group"><label class="form-label">Mensaje para los miembros</label><input class="form-input" id="maintMsgInput" placeholder="Ej: Estamos mejorando la plataforma. Volvemos a las 8pm." value="Estamos realizando mejoras en la plataforma. Volvemos pronto."></div>
         <div class="form-group"><label class="form-label">Tiempo estimado de regreso</label><input class="form-input" type="time" id="maintTime" value="20:00"></div>
-        <div style="margin-top:12px"><button class="btn-primary" onclick="alert('Configuración de mantenimiento guardada')">Guardar mensaje</button></div>
+        <div style="margin-top:12px"><button class="btn-primary" onclick="saveMaintMsg()">Guardar mensaje</button></div>
       </div>
       <div id="maintStatus" style="margin-top:16px"><span class="maint-status maint-status--off">● Club activo — funcionando normalmente</span></div>
     </div>
@@ -499,6 +555,14 @@ body.dark #darkToggle .icon-sun{display:block}
 </div>
 
 <!-- MODALS -->
+
+<!-- Modal: Detalle del miembro -->
+<div class="modal-overlay" id="miembroDetalleModal" onclick="if(event.target===this)closeModal('miembroDetalleModal')">
+  <div class="modal" style="max-width:680px">
+    <button class="modal__close" onclick="closeModal('miembroDetalleModal')"><svg class="icon" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M6 18L18 6M6 6l12 12"/></svg></button>
+    <div id="miembroDetalleContent" style="min-height:400px"><div style="text-align:center;padding:60px;color:var(--gray-400)">Cargando...</div></div>
+  </div>
+</div>
 <div class="modal-overlay" id="cursoModal" onclick="if(event.target===this)closeModal('cursoModal')">
   <div class="modal">
     <button class="modal__close" onclick="closeModal('cursoModal')"><svg class="icon" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M6 18L18 6M6 6l12 12"/></svg></button>
@@ -590,8 +654,49 @@ function addClass(listId,countId){
   document.getElementById(countId).textContent=list.children.length+' clase'+(list.children.length>1?'s':'');
 }
 function updateCount(listId,countId){var n=document.getElementById(listId).children.length;document.getElementById(countId).textContent=n+' clase'+(n!==1?'s':'');}
-function toggleMaint(){var t=document.getElementById('maintToggle');t.classList.toggle('on');var on=t.classList.contains('on');document.getElementById('maintMsg').style.display=on?'block':'none';document.getElementById('maintStatus').innerHTML=on?'<span class="maint-status maint-status--on">⚠ Club en mantenimiento — los miembros no pueden acceder</span>':'<span class="maint-status maint-status--off">● Club activo — funcionando normalmente</span>';localStorage.setItem('gv-maint',on?'1':'0')}
-if(localStorage.getItem('gv-maint')==='1'){document.getElementById('maintToggle').classList.add('on');document.getElementById('maintMsg').style.display='block';document.getElementById('maintStatus').innerHTML='<span class="maint-status maint-status--on">⚠ Club en mantenimiento — los miembros no pueden acceder</span>'}
+// ===== MODO MANTENIMIENTO (guarda en Firestore /config/maintenance) =====
+function toggleMaint(){
+  var t=document.getElementById('maintToggle');
+  t.classList.toggle('on');
+  var on=t.classList.contains('on');
+  document.getElementById('maintMsg').style.display=on?'block':'none';
+  document.getElementById('maintStatus').innerHTML=on?'<span class="maint-status maint-status--on">⚠ Club en mantenimiento — los miembros no pueden acceder</span>':'<span class="maint-status maint-status--off">● Club activo — funcionando normalmente</span>';
+  // Guardar en Firestore para que el Club lo lea
+  var msg=document.getElementById('maintMsgInput').value||'Estamos realizando mejoras en la plataforma. Volvemos pronto.';
+  var time=document.getElementById('maintTime').value||'';
+  db.collection('config').doc('maintenance').set({
+    active:on,mensaje:msg,horaRegreso:time,actualizado:new Date().toISOString()
+  }).catch(function(e){console.error('Error guardando mantenimiento:',e);showToast('Error al guardar','error');});
+}
+// Guardar mensaje (sin cambiar el toggle)
+function saveMaintMsg(){
+  var on=document.getElementById('maintToggle').classList.contains('on');
+  var msg=document.getElementById('maintMsgInput').value;
+  var time=document.getElementById('maintTime').value;
+  if(!msg){showToast('Escribe un mensaje','error');return;}
+  db.collection('config').doc('maintenance').set({
+    active:on,mensaje:msg,horaRegreso:time,actualizado:new Date().toISOString()
+  }).then(function(){showToast('Mensaje guardado','success');}).catch(function(e){showToast('Error al guardar','error');});
+}
+// Al cargar Admin, leer el estado actual desde Firestore
+function loadMaintStatus(){
+  db.collection('config').doc('maintenance').get().then(function(doc){
+    if(!doc.exists)return;
+    var d=doc.data();
+    var t=document.getElementById('maintToggle');
+    if(d.active){
+      t.classList.add('on');
+      document.getElementById('maintMsg').style.display='block';
+      document.getElementById('maintStatus').innerHTML='<span class="maint-status maint-status--on">⚠ Club en mantenimiento — los miembros no pueden acceder</span>';
+    }else{
+      t.classList.remove('on');
+      document.getElementById('maintMsg').style.display='none';
+      document.getElementById('maintStatus').innerHTML='<span class="maint-status maint-status--off">● Club activo — funcionando normalmente</span>';
+    }
+    if(d.mensaje)document.getElementById('maintMsgInput').value=d.mensaje;
+    if(d.horaRegreso)document.getElementById('maintTime').value=d.horaRegreso;
+  }).catch(function(){});
+}
 // === LOGIN REAL CON FIREBASE AUTH ===
 var auth=firebase.auth();
 // Persistencia LOCAL: la sesion sobrevive recargas y se mantiene hasta signOut explicito
@@ -630,7 +735,7 @@ function adminLoginFn(){
     var iniciales=nombre.split(' ').map(function(w){return w.charAt(0).toUpperCase();}).slice(0,2).join('');
     document.getElementById('adminAvatar').textContent=iniciales||'AD';
     // Recargar datos
-    loadCursos();loadWebinars();loadPdfs();loadNoticias();loadNotificaciones();loadMiembros();loadActividadReciente();loadDashboardStats();
+    loadCursos();loadWebinars();loadPdfs();loadNoticias();loadNotificaciones();loadMiembros();loadActividadReciente();loadDashboardStats();loadMaintStatus();
   }).catch(function(error){
     btn.textContent=btnTxt;btn.disabled=false;
     var msg='Credenciales incorrectas. Intenta de nuevo.';
@@ -671,7 +776,7 @@ auth.onAuthStateChanged(function(user){
       var iniciales=nombre.split(' ').map(function(w){return w.charAt(0).toUpperCase();}).slice(0,2).join('');
       document.getElementById('adminAvatar').textContent=iniciales||'AD';
       if(typeof loadCursos==='function'){
-        loadCursos();loadWebinars();loadPdfs();loadNoticias();loadNotificaciones();loadMiembros();loadActividadReciente();loadDashboardStats();
+        loadCursos();loadWebinars();loadPdfs();loadNoticias();loadNotificaciones();loadMiembros();loadActividadReciente();loadDashboardStats();loadMaintStatus();
       }
     }else{
       // Solo cerrar sesion si CONFIRMAMOS que no existe el doc
@@ -686,7 +791,7 @@ auth.onAuthStateChanged(function(user){
       adminVerified=true;
       document.getElementById('adminLogin').classList.remove('show');
       if(typeof loadCursos==='function'){
-        loadCursos();loadWebinars();loadPdfs();loadNoticias();loadNotificaciones();loadMiembros();loadActividadReciente();loadDashboardStats();
+        loadCursos();loadWebinars();loadPdfs();loadNoticias();loadNotificaciones();loadMiembros();loadActividadReciente();loadDashboardStats();loadMaintStatus();
       }
     }
   });
@@ -717,11 +822,11 @@ if(ntp)ntp.addEventListener('change',function(){document.getElementById('prevEmo
 // ============ FIRESTORE CRUD ============
 function getInputs(mid){var m=document.getElementById(mid);var v=[];m.querySelectorAll('.form-input').forEach(function(i){v.push(i.value||'')});return v}
 function getClasses(){var c=[];document.querySelectorAll('#cursoClasses .class-item').forEach(function(it,i){var inp=it.querySelectorAll('input');c.push({numero:i+1,nombre:inp[0]?inp[0].value:'',descripcion:inp[1]?inp[1].value:'',duracion:inp[2]?inp[2].value:'',video:inp[3]?inp[3].value:''})});return c}
-function saveCurso(){var v=getInputs('cursoModal');if(!v[0]){alert('Ingresa el nombre del curso');return;}var ref=editId.cursos?db.collection('cursos').doc(editId.cursos):db.collection('cursos').doc();ref.set({nombre:v[0],descripcion:v[1],categoria:v[2],nivel:v[3],instructor:v[4],estado:v[5],liberacion:v[6],temario:v[7],imagen:v[8],clases:getClasses(),creado:new Date().toISOString()}).then(function(){editId.cursos=null;closeModal('cursoModal');loadCursos();alert('Curso guardado')}).catch(function(e){alert('Error: '+e.message)})}
-function saveWebinar(){var v=getInputs('webinarModal');if(!v[0]){alert('Ingresa el título');return;}var ref=editId.webinars?db.collection('webinars').doc(editId.webinars):db.collection('webinars').doc();ref.set({titulo:v[0],descripcion:v[1],ponente:v[2],estado:v[3],fecha:v[4],hora:v[5],duracion:v[6],cupo:v[7],link:v[8],imagen:v[9],cv:v[10],grabacion:v[11],creado:new Date().toISOString()}).then(function(){editId.webinars=null;closeModal('webinarModal');loadWebinars();alert('Webinar guardado')}).catch(function(e){alert('Error: '+e.message)})}
-function savePdf(){var v=getInputs('pdfModal');if(!v[0]){alert('Ingresa el título');return;}var ref=editId.pdfs?db.collection('pdfs').doc(editId.pdfs):db.collection('pdfs').doc();ref.set({titulo:v[0],descripcion:v[1],categoria:v[2],estado:v[3],archivo:v[4],imagen:v[5],creado:new Date().toISOString()}).then(function(){editId.pdfs=null;closeModal('pdfModal');loadPdfs();alert('Material guardado')}).catch(function(e){alert('Error: '+e.message)})}
-function saveNoticia(){var v=getInputs('newsModal');if(!v[0]){alert('Ingresa el título');return;}var ref=editId.noticias?db.collection('noticias').doc(editId.noticias):db.collection('noticias').doc();ref.set({titulo:v[0],contenido:v[1],fuente:v[2],estado:v[3],imagen:v[4],creado:new Date().toISOString()}).then(function(){editId.noticias=null;closeModal('newsModal');loadNoticias();alert('Noticia guardada')}).catch(function(e){alert('Error: '+e.message)})}
-function saveNotificacion(){var t=document.getElementById('notifTitle').value,m=document.getElementById('notifMsg').value,tp=document.getElementById('notifType').value;if(!t||!m){alert('Ingresa título y mensaje');return;}db.collection('notificaciones').add({titulo:t,mensaje:m,tipo:tp,emoji:emojiMap[tp]||'📢',creado:new Date().toISOString()}).then(function(){document.getElementById('notifTitle').value='';document.getElementById('notifMsg').value='';loadNotificaciones();alert('Notificación enviada')}).catch(function(e){alert('Error: '+e.message)})}
+function saveCurso(){var v=getInputs('cursoModal');if(!v[0]){showToast('Ingresa el nombre del curso','error');return;}var isEdit=!!editId.cursos;var ref=isEdit?db.collection('cursos').doc(editId.cursos):db.collection('cursos').doc();var data={nombre:v[0],descripcion:v[1],categoria:v[2],nivel:v[3],instructor:v[4],estado:v[5],liberacion:v[6],temario:v[7],imagen:v[8],clases:getClasses(),actualizado:new Date().toISOString()};if(!isEdit)data.creado=new Date().toISOString();ref.set(data,{merge:true}).then(function(){editId.cursos=null;closeModal('cursoModal');loadCursos();showToast('Curso guardado','success')}).catch(function(e){showToast('Error: '+e.message,'error')})}
+function saveWebinar(){var v=getInputs('webinarModal');if(!v[0]){showToast('Ingresa el título','error');return;}var isEdit=!!editId.webinars;var ref=isEdit?db.collection('webinars').doc(editId.webinars):db.collection('webinars').doc();var data={titulo:v[0],descripcion:v[1],ponente:v[2],estado:v[3],fecha:v[4],hora:v[5],duracion:v[6],cupo:v[7],link:v[8],imagen:v[9],cv:v[10],grabacion:v[11],actualizado:new Date().toISOString()};if(!isEdit)data.creado=new Date().toISOString();ref.set(data,{merge:true}).then(function(){editId.webinars=null;closeModal('webinarModal');loadWebinars();showToast('Webinar guardado','success')}).catch(function(e){showToast('Error: '+e.message,'error')})}
+function savePdf(){var v=getInputs('pdfModal');if(!v[0]){showToast('Ingresa el título','error');return;}var isEdit=!!editId.pdfs;var ref=isEdit?db.collection('pdfs').doc(editId.pdfs):db.collection('pdfs').doc();var data={titulo:v[0],descripcion:v[1],categoria:v[2],estado:v[3],archivo:v[4],imagen:v[5],actualizado:new Date().toISOString()};if(!isEdit)data.creado=new Date().toISOString();ref.set(data,{merge:true}).then(function(){editId.pdfs=null;closeModal('pdfModal');loadPdfs();showToast('Material guardado','success')}).catch(function(e){showToast('Error: '+e.message,'error')})}
+function saveNoticia(){var v=getInputs('newsModal');if(!v[0]){showToast('Ingresa el título','error');return;}var isEdit=!!editId.noticias;var ref=isEdit?db.collection('noticias').doc(editId.noticias):db.collection('noticias').doc();var data={titulo:v[0],contenido:v[1],fuente:v[2],estado:v[3],imagen:v[4],actualizado:new Date().toISOString()};if(!isEdit)data.creado=new Date().toISOString();ref.set(data,{merge:true}).then(function(){editId.noticias=null;closeModal('newsModal');loadNoticias();showToast('Noticia guardada','success')}).catch(function(e){showToast('Error: '+e.message,'error')})}
+function saveNotificacion(){var t=document.getElementById('notifTitle').value,m=document.getElementById('notifMsg').value,tp=document.getElementById('notifType').value;if(!t||!m){showToast('Ingresa título y mensaje','error');return;}db.collection('notificaciones').add({titulo:t,mensaje:m,tipo:tp,emoji:emojiMap[tp]||'📢',creado:new Date().toISOString()}).then(function(){document.getElementById('notifTitle').value='';document.getElementById('notifMsg').value='';loadNotificaciones();showToast('Notificación enviada','success')}).catch(function(e){showToast('Error: '+e.message,'error')})}
 
 function deleteDoc(col,id){if(confirm('¿Eliminar este registro?')){db.collection(col).doc(id).delete().then(function(){if(col==='cursos')loadCursos();if(col==='webinars')loadWebinars();if(col==='pdfs')loadPdfs();if(col==='noticias')loadNoticias();if(col==='notificaciones')loadNotificaciones()})}}
 function be(e){return(e==='Publicado'||e==='Publicada'||e==='Próximo')?'badge--active':(e==='Borrador'||e==='Pendiente'||e==='Oculto')?'badge--pending':'badge--inactive'}
@@ -758,12 +863,144 @@ function timeAgo(date){
   return d.toLocaleDateString('es-MX');
 }
 
-function loadDashboardStats(){
-  // Miembros activos
+// ===== MÉTRICAS DE NEGOCIO (MRR, ARR, Churn, Conversión) =====
+function loadBizMetrics(){
   db.collection('miembros').get().then(function(s){
-    var n=0;
-    s.forEach(function(d){var c=d.data();if(!c.estado||c.estado==='activo')n++;});
-    var el=document.getElementById('statMiembros');if(el)el.textContent=n;
+    var ahora=Date.now();
+    var hace30=ahora-30*24*60*60*1000;
+
+    var activosMensuales=0,activosAnuales=0;
+    var trials=0,fallidos=0,cancelados=0,sinSub=0;
+    var canceladosMes=0,activosHaceMes=0;
+    var totalTrials=0,trialsConvertidos=0;
+    var total=0;
+
+    s.forEach(function(d){
+      var c=d.data();total++;
+      var sub=c.suscripcion;
+
+      // Conteo de canceladas este mes (para churn)
+      if(sub&&sub.estado==='cancelada'&&sub.canceladaEn){
+        var fc=new Date(sub.canceladaEn).getTime();
+        if(fc>hace30)canceladosMes++;
+      }
+      if(sub&&sub.cancelacionProgramada&&sub.cancelaEn){
+        var fcp=new Date(sub.cancelaEn).getTime();
+        if(fcp<ahora)canceladosMes++;
+      }
+
+      // Activos hace un mes (denominador del churn)
+      if(sub&&sub.activadaEn){
+        var fa=new Date(sub.activadaEn).getTime();
+        if(fa<hace30)activosHaceMes++;
+      }
+
+      // Tasa de conversión: trials que llegaron a suscripción pagada
+      if(c.registro){
+        var diasReg=Math.floor((ahora-new Date(c.registro).getTime())/(1000*60*60*24));
+        if(diasReg>=7){
+          // Trial ya terminado, contar si llegó al menos a iniciar suscripción
+          totalTrials++;
+          if(sub&&sub.estado&&sub.estado!=='cancelada')trialsConvertidos++;
+        }
+      }
+
+      // Distribución actual
+      if(sub&&sub.estado==='activa'){
+        if(sub.plan==='anual')activosAnuales++;
+        else activosMensuales++;
+        return;
+      }
+      if(sub&&sub.estado==='pago_fallido'){fallidos++;return;}
+      if(sub&&sub.estado==='cancelada'){cancelados++;return;}
+
+      // Sin suscripción: trial o expirado
+      if(c.registro){
+        var dias2=Math.floor((ahora-new Date(c.registro).getTime())/(1000*60*60*24));
+        if(dias2<7){trials++;return;}
+      }
+      sinSub++;
+    });
+
+    // === Cálculos ===
+    var mrr=activosMensuales*179 + activosAnuales*149; // anual equivale a $149/mes
+    var arr=mrr*12;
+    var churnRate=activosHaceMes>0?((canceladosMes/activosHaceMes)*100):0;
+    var convRate=totalTrials>0?((trialsConvertidos/totalTrials)*100):0;
+
+    // === Pintar UI ===
+    var fmt=function(n){return '$'+n.toLocaleString('es-MX',{maximumFractionDigits:0});};
+    var setText=function(id,txt){var el=document.getElementById(id);if(el)el.textContent=txt;};
+
+    setText('bizMRR',fmt(mrr));
+    setText('bizMRRSub',activosMensuales+' mensuales · '+activosAnuales+' anuales');
+    setText('bizARR',fmt(arr));
+    setText('bizChurn',churnRate.toFixed(1)+'%');
+    setText('bizChurnSub',canceladosMes+' canceladas en 30 días');
+    setText('bizConv',convRate.toFixed(0)+'%');
+    setText('bizConvSub',trialsConvertidos+' de '+totalTrials+' trials');
+
+    // Color del churn según valor
+    var churnCard=document.getElementById('bizChurn');
+    if(churnCard){
+      var parent=churnCard.closest('.biz-card');
+      if(parent){
+        parent.classList.remove('biz-card--good','biz-card--warn','biz-card--danger');
+        if(churnRate<5)parent.classList.add('biz-card--good');
+        else if(churnRate<10)parent.classList.add('biz-card--warn');
+        else parent.classList.add('biz-card--danger');
+      }
+    }
+
+    // === Barra de distribución ===
+    setText('distTotalLabel','Total: '+total+' miembro'+(total!==1?'s':''));
+    var pctActivos=total>0?((activosMensuales+activosAnuales)/total*100).toFixed(0):0;
+    setText('distActivePct',pctActivos+'% con suscripción activa');
+
+    if(total>0){
+      var pct=function(n){return (n/total*100)+'%';};
+      var a=activosMensuales+activosAnuales;
+      document.getElementById('distActivos').style.width=pct(a);
+      document.getElementById('distTrials').style.width=pct(trials);
+      document.getElementById('distFallidos').style.width=pct(fallidos);
+      document.getElementById('distCancelados').style.width=pct(cancelados);
+      document.getElementById('distSinSub').style.width=pct(sinSub);
+    }
+    setText('legActivos','Activos: '+(activosMensuales+activosAnuales));
+    setText('legTrials','Trial: '+trials);
+    setText('legFallidos','Pago fallido: '+fallidos);
+    setText('legCancelados','Cancelados: '+cancelados);
+    setText('legSinSub','Sin sub: '+sinSub);
+  }).catch(function(e){console.error('Error métricas:',e);});
+}
+
+function loadDashboardStats(){
+  loadBizMetrics();
+  // Miembros con suscripcion activa o trial activo
+  db.collection('miembros').get().then(function(s){
+    var activos=0,trials=0,total=0;
+    var ahora=Date.now();
+    var hace30=ahora-30*24*60*60*1000;
+    var nuevosMes=0;
+    s.forEach(function(d){
+      var c=d.data();total++;
+      // Contar nuevos en los ultimos 30 dias
+      if(c.registro&&new Date(c.registro).getTime()>hace30)nuevosMes++;
+      var sub=c.suscripcion;
+      if(sub&&sub.estado==='activa'){activos++;return;}
+      // Sin suscripcion: ver si esta en trial (7 dias desde registro)
+      if(c.registro){
+        var dias=Math.floor((ahora-new Date(c.registro).getTime())/(1000*60*60*24));
+        if(dias<7)trials++;
+      }
+    });
+    var el=document.getElementById('statMiembros');
+    if(el)el.textContent=activos+trials;
+    var chg=document.getElementById('statMiembrosChange');
+    if(chg){
+      if(nuevosMes>0){chg.textContent='↑ '+nuevosMes+' este mes';chg.style.display='inline-block';}
+      else{chg.style.display='none';}
+    }
   }).catch(function(){var el=document.getElementById('statMiembros');if(el)el.textContent='0';});
   // Cursos publicados
   db.collection('cursos').get().then(function(s){
@@ -830,6 +1067,103 @@ function loadActividadReciente(){
     console.error('Error cargando actividad:',e);
     var tb=document.getElementById('actividadRecienteBody');
     if(tb)tb.innerHTML='<tr><td colspan="3" style="text-align:center;color:#d63838;padding:24px">Error al cargar la actividad</td></tr>';
+  });
+}
+
+// ===== TOAST SYSTEM (reemplazo a alert) =====
+function showToast(msg,type){
+  type=type||'info';
+  var c={'success':'#22c55e','error':'#dc2626','info':'#4b1c71','warn':'#f59e0b'};
+  var bg=c[type]||c.info;
+  var t=document.createElement('div');
+  t.style.cssText='position:fixed;bottom:24px;right:24px;background:'+bg+';color:#fff;padding:14px 22px;border-radius:10px;font-size:0.88rem;font-weight:600;box-shadow:0 12px 28px rgba(0,0,0,0.18);z-index:99999;transform:translateY(20px);opacity:0;transition:all 0.3s;font-family:var(--font-body);max-width:340px';
+  t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(function(){t.style.transform='translateY(0)';t.style.opacity='1';},10);
+  setTimeout(function(){t.style.transform='translateY(20px)';t.style.opacity='0';setTimeout(function(){t.remove();},300);},2800);
+}
+
+// ===== DETALLE DE MIEMBRO =====
+function openMiembroDetalle(uid){
+  openModal('miembroDetalleModal');
+  var cont=document.getElementById('miembroDetalleContent');
+  cont.innerHTML='<div style="text-align:center;padding:60px;color:var(--gray-400)">Cargando...</div>';
+
+  Promise.all([
+    db.collection('miembros').doc(uid).get(),
+    db.collection('progreso').where('uid','==',uid).get().catch(function(){return{docs:[]};}),
+    db.collection('certificados').where('uid','==',uid).get().catch(function(){return{docs:[]};}),
+    db.collection('reservas_webinars').where('uid','==',uid).get().catch(function(){return{docs:[]};})
+  ]).then(function(results){
+    var doc=results[0];
+    if(!doc.exists){cont.innerHTML='<div style="text-align:center;padding:60px;color:var(--gray-400)">Miembro no encontrado</div>';return;}
+    var m=doc.data();m._id=doc.id;
+    var st=calcMiembroSubStatus(m);
+    var iniciales=(m.nombre||'?').split(' ').map(function(w){return w.charAt(0).toUpperCase();}).slice(0,2).join('');
+
+    // Stats
+    var cursosCompletados=0,cursosEnProgreso=0;
+    results[1].docs.forEach(function(d){
+      var p=d.data();
+      if(p.completado||(p.clasesCompletadas&&p.totalClases&&p.clasesCompletadas.length>=p.totalClases))cursosCompletados++;
+      else if(p.clasesCompletadas&&p.clasesCompletadas.length>0)cursosEnProgreso++;
+    });
+    var certificados=results[2].docs.length;
+    var reservas=results[3].docs.length;
+
+    var sub=m.suscripcion||{};
+    var fechaSub=sub.activadaEn?new Date(sub.activadaEn).toLocaleDateString('es-MX'):'—';
+    var planTxt=sub.plan?(sub.plan==='anual'?'Plan Anual ($1,788/año)':'Plan Mensual ($179/mes)'):'—';
+    var fechaReg=m.registro?new Date(m.registro).toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'}):'—';
+
+    // Header
+    var html='<div style="display:flex;align-items:center;gap:18px;margin-bottom:22px;padding-bottom:22px;border-bottom:1px solid var(--gray-100)">';
+    html+='<div style="width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,var(--purple-900),var(--purple-600));color:#fff;display:grid;place-items:center;font-family:var(--font-display);font-weight:700;font-size:1.1rem;flex-shrink:0">'+iniciales+'</div>';
+    html+='<div style="flex:1;min-width:0"><h2 style="font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--gray-900);margin:0 0 4px">'+(m.nombre||'Sin nombre')+'</h2>';
+    html+='<p style="margin:0;font-size:0.8rem;color:var(--gray-500)">'+(m.correo||'—')+'</p>';
+    html+='<div style="margin-top:8px"><span style="display:inline-block;padding:3px 10px;border-radius:50px;background:'+st.color+'22;color:'+st.color+';font-size:0.7rem;font-weight:600">● '+st.label+'</span></div>';
+    html+='</div></div>';
+
+    // Stats grid
+    html+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px">';
+    html+='<div style="background:var(--gray-50);border-radius:10px;padding:14px;text-align:center"><div style="font-size:1.4rem;font-weight:700;color:var(--purple-900);font-family:var(--font-display)">'+cursosCompletados+'</div><div style="font-size:0.7rem;color:var(--gray-500);margin-top:2px">Cursos completados</div></div>';
+    html+='<div style="background:var(--gray-50);border-radius:10px;padding:14px;text-align:center"><div style="font-size:1.4rem;font-weight:700;color:var(--purple-900);font-family:var(--font-display)">'+cursosEnProgreso+'</div><div style="font-size:0.7rem;color:var(--gray-500);margin-top:2px">En progreso</div></div>';
+    html+='<div style="background:var(--gray-50);border-radius:10px;padding:14px;text-align:center"><div style="font-size:1.4rem;font-weight:700;color:var(--purple-900);font-family:var(--font-display)">'+certificados+'</div><div style="font-size:0.7rem;color:var(--gray-500);margin-top:2px">Certificados</div></div>';
+    html+='<div style="background:var(--gray-50);border-radius:10px;padding:14px;text-align:center"><div style="font-size:1.4rem;font-weight:700;color:var(--purple-900);font-family:var(--font-display)">'+reservas+'</div><div style="font-size:0.7rem;color:var(--gray-500);margin-top:2px">Webinars</div></div>';
+    html+='</div>';
+
+    // Info de suscripción
+    html+='<div style="background:var(--gray-50);border-radius:10px;padding:18px;margin-bottom:18px">';
+    html+='<div style="font-size:0.72rem;color:var(--gray-500);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px">Suscripción</div>';
+    html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;font-size:0.84rem">';
+    html+='<div><span style="color:var(--gray-400)">Plan:</span> <strong style="color:var(--gray-800)">'+planTxt+'</strong></div>';
+    html+='<div><span style="color:var(--gray-400)">Activada:</span> <strong style="color:var(--gray-800)">'+fechaSub+'</strong></div>';
+    if(sub.stripeCustomerId){html+='<div style="grid-column:1/-1"><span style="color:var(--gray-400)">Stripe Customer:</span> <code style="font-size:0.72rem;color:var(--gray-600)">'+sub.stripeCustomerId+'</code></div>';}
+    if(sub.cancelacionProgramada&&sub.cancelaEn){
+      html+='<div style="grid-column:1/-1;background:#fef3c7;color:#92400e;padding:8px 12px;border-radius:8px;font-size:0.78rem">⚠ Cancelación programada para el '+new Date(sub.cancelaEn).toLocaleDateString('es-MX')+'</div>';
+    }
+    html+='</div></div>';
+
+    // Info personal
+    html+='<div style="background:var(--gray-50);border-radius:10px;padding:18px;margin-bottom:18px">';
+    html+='<div style="font-size:0.72rem;color:var(--gray-500);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px">Información personal</div>';
+    html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;font-size:0.84rem">';
+    html+='<div><span style="color:var(--gray-400)">Teléfono:</span> '+(m.telefono||'—')+'</div>';
+    html+='<div><span style="color:var(--gray-400)">Ciudad:</span> '+(m.ciudad||'—')+'</div>';
+    html+='<div style="grid-column:1/-1"><span style="color:var(--gray-400)">Registro:</span> '+fechaReg+'</div>';
+    html+='<div style="grid-column:1/-1"><span style="color:var(--gray-400)">UID:</span> <code style="font-size:0.72rem;color:var(--gray-600)">'+uid+'</code></div>';
+    html+='</div></div>';
+
+    // Botones de acción
+    html+='<div style="display:flex;gap:8px;flex-wrap:wrap">';
+    html+='<a href="https://dashboard.stripe.com/test/customers/'+(sub.stripeCustomerId||'')+'" target="_blank" class="btn-ghost" style="text-decoration:none">Ver en Stripe</a>';
+    html+='<button class="btn-ghost" onclick="window.location.href=\'mailto:'+(m.correo||'')+'\'">Enviar email</button>';
+    html+='</div>';
+
+    cont.innerHTML=html;
+  }).catch(function(e){
+    console.error('Error cargando detalle:',e);
+    cont.innerHTML='<div style="text-align:center;padding:60px;color:#dc2626">Error al cargar el detalle del miembro</div>';
   });
 }
 
@@ -907,7 +1241,7 @@ function applyMiembrosFilters(){
       vence='Trial vence '+fr.toLocaleDateString('es-MX');
     }
     var dot='<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:'+st.color+';margin-right:6px;vertical-align:middle"></span>';
-    tb.innerHTML+='<tr><td><strong>'+(c.nombre||'Sin nombre')+'</strong></td><td>'+(c.correo||'—')+'</td><td>'+planLabel+'</td><td>'+dot+'<span style="color:'+st.color+';font-weight:500">'+st.label+'</span>'+(st.cancelacionProgramada?' <span style="font-size:0.65rem;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:8px;margin-left:4px">cancela pronto</span>':'')+'</td><td style="font-size:0.78rem;color:var(--gray-500)">'+vence+'</td><td>'+fecha+'</td></tr>';
+    tb.innerHTML+='<tr style="cursor:pointer" onclick="openMiembroDetalle(\''+c._id+'\')"><td><strong>'+(c.nombre||'Sin nombre')+'</strong></td><td>'+(c.correo||'—')+'</td><td>'+planLabel+'</td><td>'+dot+'<span style="color:'+st.color+';font-weight:500">'+st.label+'</span>'+(st.cancelacionProgramada?' <span style="font-size:0.65rem;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:8px;margin-left:4px">cancela pronto</span>':'')+'</td><td style="font-size:0.78rem;color:var(--gray-500)">'+vence+'</td><td>'+fecha+'</td></tr>';
   });
   if(n===0){
     tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--gray-400)">Ningún miembro coincide con los filtros</td></tr>';
