@@ -571,7 +571,7 @@ body.dark #darkToggle .icon-sun{display:block}
     <div class="modal__desc">Completa la información del curso y agrega sus clases.</div>
     <div class="form-group"><label class="form-label">Nombre del curso</label><input class="form-input" placeholder="Ej: Fundamentos de Dermatología" id="cNombre"></div>
     <div class="form-group"><label class="form-label">Descripción</label><textarea class="form-input form-textarea" placeholder="Breve descripción del contenido del curso..." id="cDesc"></textarea></div>
-    <div class="form-row"><div class="form-group"><label class="form-label">Categoría</label><select class="form-input form-select"><option>Cirugía</option><option>Diagnóstico</option><option>Nutrición</option><option>Dermatología</option><option>Urgencias</option><option>Odontología</option></select></div><div class="form-group"><label class="form-label">Nivel</label><select class="form-input form-select"><option>Básico</option><option>Intermedio</option><option>Avanzado</option></select></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label" style="display:flex;align-items:center;justify-content:space-between">Categoría<button type="button" onclick="openNewCategoriaModal()" style="background:none;border:none;color:#7f4ca5;font-size:0.72rem;font-weight:600;cursor:pointer;padding:0">+ Nueva</button></label><select class="form-input form-select" id="cCategoriaSelect"></select></div><div class="form-group"><label class="form-label">Nivel</label><select class="form-input form-select"><option>Básico</option><option>Intermedio</option><option>Avanzado</option></select></div></div>
     <div class="form-row"><div class="form-group"><label class="form-label">Instructor</label><input class="form-input" placeholder="Dr. Nombre"></div><div class="form-group"><label class="form-label">Estado</label><select class="form-input form-select"><option>Publicado</option><option>Borrador</option><option>Oculto</option></select></div></div>
     <div class="form-group"><label class="form-label">Liberación por goteo (días desde registro del socio)</label><input type="number" min="0" class="form-input" placeholder="0 = disponible inmediatamente, 7 = a los 7 días, 30 = al mes..." value="0" id="cDripDias"><div style="font-size:0.75rem;color:#9c9c9c;margin-top:4px">Si el valor es 0, el curso se desbloquea desde que el socio se registra. Si es 13, se desbloquea 13 días después.</div></div>
     <div class="form-group"><label class="gd-label"><svg class="icon" viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg> Temario del curso (Google Drive)</label><input class="form-input gd-input" placeholder="https://drive.google.com/file/d/..."></div>
@@ -582,6 +582,19 @@ body.dark #darkToggle .icon-sun{display:block}
     <button class="add-class-btn" onclick="addClass('cursoClasses','cursoClassCount')">+ Agregar clase</button>
     <div class="modal__divider"></div>
     <div class="form-actions"><button class="btn-primary" onclick="saveCurso()">Guardar curso</button><button class="btn-ghost" onclick="closeModal('cursoModal')">Cancelar</button></div>
+  </div>
+</div>
+
+<!-- MODAL: Nueva categoria / gestion -->
+<div class="modal-overlay" id="categoriaModal" onclick="if(event.target===this)closeModal('categoriaModal')">
+  <div class="modal" style="max-width:440px">
+    <button class="modal__close" onclick="closeModal('categoriaModal')"><svg class="icon" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M6 18L18 6M6 6l12 12"/></svg></button>
+    <div class="modal__title">Categorías de cursos</div>
+    <div class="modal__desc">Crea, renombra o elimina las categorías que aparecen en el Club.</div>
+    <div class="form-group"><label class="form-label">Nueva categoría</label><div style="display:flex;gap:8px"><input class="form-input" id="newCategoriaName" placeholder="Ej: Cardiología" style="flex:1"><button class="btn-primary" onclick="saveCategoria()" style="white-space:nowrap;padding:0 18px">Agregar</button></div></div>
+    <div class="modal__divider"></div>
+    <div style="font-size:0.78rem;font-weight:600;color:#9c9c9c;margin-bottom:10px;letter-spacing:0.04em">EXISTENTES</div>
+    <div id="categoriasList" style="display:flex;flex-direction:column;gap:6px;max-height:280px;overflow-y:auto"></div>
   </div>
 </div>
 
@@ -736,7 +749,7 @@ function adminLoginFn(){
     var iniciales=nombre.split(' ').map(function(w){return w.charAt(0).toUpperCase();}).slice(0,2).join('');
     document.getElementById('adminAvatar').textContent=iniciales||'AD';
     // Recargar datos
-    loadCursos();loadWebinars();loadPdfs();loadNoticias();loadNotificaciones();loadMiembros();loadActividadReciente();loadDashboardStats();loadMaintStatus();
+    loadCategorias();loadCursos();loadWebinars();loadPdfs();loadNoticias();loadNotificaciones();loadMiembros();loadActividadReciente();loadDashboardStats();loadMaintStatus();
   }).catch(function(error){
     btn.textContent=btnTxt;btn.disabled=false;
     var msg='Credenciales incorrectas. Intenta de nuevo.';
@@ -777,7 +790,7 @@ auth.onAuthStateChanged(function(user){
       var iniciales=nombre.split(' ').map(function(w){return w.charAt(0).toUpperCase();}).slice(0,2).join('');
       document.getElementById('adminAvatar').textContent=iniciales||'AD';
       if(typeof loadCursos==='function'){
-        loadCursos();loadWebinars();loadPdfs();loadNoticias();loadNotificaciones();loadMiembros();loadActividadReciente();loadDashboardStats();loadMaintStatus();
+        loadCategorias();loadCursos();loadWebinars();loadPdfs();loadNoticias();loadNotificaciones();loadMiembros();loadActividadReciente();loadDashboardStats();loadMaintStatus();
       }
     }else{
       // Solo cerrar sesion si CONFIRMAMOS que no existe el doc
@@ -792,7 +805,7 @@ auth.onAuthStateChanged(function(user){
       adminVerified=true;
       document.getElementById('adminLogin').classList.remove('show');
       if(typeof loadCursos==='function'){
-        loadCursos();loadWebinars();loadPdfs();loadNoticias();loadNotificaciones();loadMiembros();loadActividadReciente();loadDashboardStats();loadMaintStatus();
+        loadCategorias();loadCursos();loadWebinars();loadPdfs();loadNoticias();loadNotificaciones();loadMiembros();loadActividadReciente();loadDashboardStats();loadMaintStatus();
       }
     }
   });
@@ -823,6 +836,103 @@ if(ntp)ntp.addEventListener('change',function(){document.getElementById('prevEmo
 // ============ FIRESTORE CRUD ============
 function getInputs(mid){var m=document.getElementById(mid);var v=[];m.querySelectorAll('.form-input').forEach(function(i){v.push(i.value||'')});return v}
 function getClasses(){var c=[];document.querySelectorAll('#cursoClasses .class-item').forEach(function(it,i){var inp=it.querySelectorAll('input');c.push({numero:i+1,nombre:inp[0]?inp[0].value:'',descripcion:inp[1]?inp[1].value:'',duracion:inp[2]?inp[2].value:'',video:inp[3]?inp[3].value:''})});return c}
+// ============ CATEGORIAS DINAMICAS ============
+var CATEGORIAS_INICIALES=['Cirugía','Medicina Interna','Dermatología','Imagenología','Urgencias','Nutrición','Animales Exóticos'];
+var _categoriasCache=[];
+
+function loadCategorias(){
+  return db.collection('categorias').orderBy('nombre').get().then(function(s){
+    var arr=[];
+    s.forEach(function(d){var c=d.data();c._id=d.id;arr.push(c);});
+    if(arr.length===0){
+      // Sembrar las iniciales
+      var batch=db.batch();
+      CATEGORIAS_INICIALES.forEach(function(n){
+        var ref=db.collection('categorias').doc();
+        batch.set(ref,{nombre:n,creado:new Date().toISOString()});
+      });
+      return batch.commit().then(function(){return loadCategorias();}).catch(function(){
+        // Si falla el seed (no admin o lo que sea), usar fallback en memoria
+        _categoriasCache=CATEGORIAS_INICIALES.map(function(n){return {nombre:n};});
+        fillCategoriaDropdown();
+        renderCategoriasList();
+        return _categoriasCache;
+      });
+    }
+    _categoriasCache=arr;
+    fillCategoriaDropdown();
+    renderCategoriasList();
+    return arr;
+  }).catch(function(e){console.warn('Error categorias:',e);_categoriasCache=CATEGORIAS_INICIALES.map(function(n){return {nombre:n};});fillCategoriaDropdown();return _categoriasCache;});
+}
+
+function fillCategoriaDropdown(){
+  var sel=document.getElementById('cCategoriaSelect');
+  if(!sel)return;
+  var prevVal=sel.value;
+  sel.innerHTML='';
+  _categoriasCache.forEach(function(c){
+    var opt=document.createElement('option');
+    opt.value=c.nombre;opt.textContent=c.nombre;
+    sel.appendChild(opt);
+  });
+  // Restaurar valor previo si existe
+  if(prevVal){for(var i=0;i<sel.options.length;i++){if(sel.options[i].value===prevVal){sel.selectedIndex=i;break;}}}
+}
+
+function renderCategoriasList(){
+  var cont=document.getElementById('categoriasList');
+  if(!cont)return;
+  cont.innerHTML='';
+  if(_categoriasCache.length===0){
+    cont.innerHTML='<div style="padding:14px;color:#9c9c9c;font-size:0.82rem;text-align:center">No hay categorías aún.</div>';
+    return;
+  }
+  _categoriasCache.forEach(function(c){
+    if(!c._id)return; // solo las persistidas son editables
+    var row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#fafafa;border:1px solid #eee;border-radius:8px';
+    row.innerHTML='<span style="font-size:0.88rem;font-weight:500;color:#333">'+c.nombre+'</span><button class="table-btn table-btn--danger" style="padding:6px 8px" onclick="deleteCategoria(\''+c._id+'\',\''+(c.nombre||'').replace(/'/g,"\\'")+'\')">'+delSvg+'</button>';
+    cont.appendChild(row);
+  });
+}
+
+function openNewCategoriaModal(){
+  document.getElementById('newCategoriaName').value='';
+  renderCategoriasList();
+  openModal('categoriaModal');
+  setTimeout(function(){var i=document.getElementById('newCategoriaName');if(i)i.focus();},200);
+}
+
+function saveCategoria(){
+  var inp=document.getElementById('newCategoriaName');
+  var nombre=(inp.value||'').trim();
+  if(!nombre){showToast('Escribe un nombre','error');return;}
+  // Evitar duplicados case-insensitive
+  var existe=_categoriasCache.some(function(c){return (c.nombre||'').toLowerCase()===nombre.toLowerCase();});
+  if(existe){showToast('Esa categoría ya existe','error');return;}
+  db.collection('categorias').add({nombre:nombre,creado:new Date().toISOString()}).then(function(){
+    inp.value='';
+    showToast('Categoría creada','success');
+    return loadCategorias();
+  }).catch(function(e){showToast('Error: '+e.message,'error');});
+}
+
+function deleteCategoria(id, nombre){
+  // Antes de borrar: revisar si hay cursos usandola
+  db.collection('cursos').where('categoria','==',nombre).get().then(function(s){
+    if(s.size>0){
+      alert('No se puede borrar "'+nombre+'": hay '+s.size+' curso'+(s.size!==1?'s':'')+' usándola.\n\nReasigna o elimina esos cursos primero.');
+      return;
+    }
+    if(!confirm('¿Eliminar la categoría "'+nombre+'"?'))return;
+    db.collection('categorias').doc(id).delete().then(function(){
+      showToast('Categoría eliminada','success');
+      return loadCategorias();
+    }).catch(function(e){showToast('Error: '+e.message,'error');});
+  });
+}
+
 function saveCurso(){var v=getInputs('cursoModal');if(!v[0]){showToast('Ingresa el nombre del curso','error');return;}var isEdit=!!editId.cursos;var ref=isEdit?db.collection('cursos').doc(editId.cursos):db.collection('cursos').doc();var dripDias=parseInt(v[6])||0;if(dripDias<0)dripDias=0;var data={nombre:v[0],descripcion:v[1],categoria:v[2],nivel:v[3],instructor:v[4],estado:v[5],dripDias:dripDias,liberacion:dripDias===0?'Inmediato':'Goteo '+dripDias+'d',temario:v[7],imagen:v[8],clases:getClasses(),actualizado:new Date().toISOString()};if(!isEdit)data.creado=new Date().toISOString();ref.set(data,{merge:true}).then(function(){editId.cursos=null;closeModal('cursoModal');loadCursos();showToast('Curso guardado','success')}).catch(function(e){showToast('Error: '+e.message,'error')})}
 function saveWebinar(){var v=getInputs('webinarModal');if(!v[0]){showToast('Ingresa el título','error');return;}var isEdit=!!editId.webinars;var ref=isEdit?db.collection('webinars').doc(editId.webinars):db.collection('webinars').doc();var data={titulo:v[0],descripcion:v[1],ponente:v[2],estado:v[3],fecha:v[4],hora:v[5],duracion:v[6],cupo:v[7],link:v[8],imagen:v[9],cv:v[10],grabacion:v[11],actualizado:new Date().toISOString()};if(!isEdit)data.creado=new Date().toISOString();ref.set(data,{merge:true}).then(function(){editId.webinars=null;closeModal('webinarModal');loadWebinars();showToast('Webinar guardado','success')}).catch(function(e){showToast('Error: '+e.message,'error')})}
 function savePdf(){var v=getInputs('pdfModal');if(!v[0]){showToast('Ingresa el título','error');return;}var isEdit=!!editId.pdfs;var ref=isEdit?db.collection('pdfs').doc(editId.pdfs):db.collection('pdfs').doc();var data={titulo:v[0],descripcion:v[1],categoria:v[2],estado:v[3],archivo:v[4],imagen:v[5],actualizado:new Date().toISOString()};if(!isEdit)data.creado=new Date().toISOString();ref.set(data,{merge:true}).then(function(){editId.pdfs=null;closeModal('pdfModal');loadPdfs();showToast('Material guardado','success')}).catch(function(e){showToast('Error: '+e.message,'error')})}
