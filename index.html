@@ -1311,6 +1311,42 @@ function adminRegalarTiempo(uid){
   });
 }
 
+function adminRegalarMinutos(uid){
+  showConfirm({
+    emoji:'⏱',
+    title:'Regalar minutos gratis',
+    message:'Otorgar acceso gratuito al Club por X minutos adicionales (cortesía corta).',
+    input:true,inputType:'number',placeholder:'Cantidad de minutos (ej: 60)',defaultValue:'60',
+    okText:'Regalar',cancelText:'Cancelar'
+  }).then(function(minutos){
+    if(!minutos||isNaN(parseInt(minutos))||parseInt(minutos)<=0){
+      if(minutos!==null)showToast('Minutos inválidos','error');
+      return;
+    }
+    showConfirm({
+      emoji:'📝',
+      title:'Motivo del regalo',
+      message:'Anota brevemente la razón (queda en el historial del miembro).',
+      input:true,placeholder:'Ej: Cortesía mientras se resuelve su pago',
+      defaultValue:'Cortesía'
+    }).then(function(motivo){
+      if(motivo===null)return;
+      showToast('Procesando regalo...','info');
+      fetch(WEBHOOK_URL+'/admin/regalar-minutos',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({uid:uid,minutos:parseInt(minutos),motivo:motivo||'Cortesía',adminUid:auth.currentUser?auth.currentUser.uid:null})
+      }).then(function(r){return r.json();}).then(function(d){
+        if(d.ok){
+          var fechaHora=new Date(d.hasta).toLocaleString('es-MX',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
+          showToast('⏱ '+minutos+' minuto(s) gratis hasta '+fechaHora,'success');
+          closeModal('miembroDetalleModal');
+          loadMiembros();loadDashboardStats();
+        }else{showToast('Error: '+(d.error||'desconocido'),'error');}
+      }).catch(function(e){showToast('Error de red: '+e.message,'error');});
+    });
+  });
+}
+
 function adminAsignarCurso(uid){
   // Cargar cursos disponibles
   db.collection('cursos').where('estado','==','activo').get().then(function(snap){
@@ -1454,6 +1490,8 @@ function openMiembroDetalle(uid){
     }
     // Regalar tiempo
     html+='<button class="btn-ghost" onclick="adminRegalarTiempo(\''+uid+'\')" style="color:#a855f7;border-color:#d8b4fe">🎁 Regalar tiempo gratis</button>';
+    // Regalar minutos (cortesía corta, ej. mientras se resuelve un problema de cobro)
+    html+='<button class="btn-ghost" onclick="adminRegalarMinutos(\''+uid+'\')" style="color:#0ea5e9;border-color:#bae6fd">⏱ Regalar minutos</button>';
     // Asignar curso
     html+='<button class="btn-ghost" onclick="adminAsignarCurso(\''+uid+'\')" style="color:#4b1c71;border-color:#dbb6ee">🎓 Asignar curso</button>';
     html+='</div>';
