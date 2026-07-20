@@ -1231,6 +1231,28 @@ function adminCancelarSub(uid){
   });
 }
 
+function adminQuitarRegalo(uid){
+  showConfirm({
+    emoji:'🚫',danger:true,
+    title:'Quitar regalo ahora',
+    message:'Esto corta el acceso gratuito de inmediato, ahorita mismo (no espera a ninguna fecha). No afecta pagos porque este miembro no tiene una suscripción real de Stripe.',
+    okText:'Sí, quitar ya',cancelText:'No'
+  }).then(function(ok){
+    if(!ok)return;
+    showToast('Quitando regalo...','info');
+    fetch(WEBHOOK_URL+'/admin/quitar-regalo',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({uid:uid,adminUid:auth.currentUser?auth.currentUser.uid:null})
+    }).then(function(r){return r.json();}).then(function(d){
+      if(d.ok){
+        showToast('Regalo retirado, acceso cortado','success');
+        closeModal('miembroDetalleModal');
+        loadMiembros();loadDashboardStats();
+      }else{showToast('Error: '+(d.error||'desconocido'),'error');}
+    }).catch(function(e){showToast('Error de red: '+e.message,'error');});
+  });
+}
+
 function adminReactivarSub(uid){
   showConfirm({
     emoji:'♻',
@@ -1474,11 +1496,13 @@ function openMiembroDetalle(uid){
     // Botones de acción admin
     html+='<div style="font-size:0.72rem;color:var(--gray-500);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin:24px 0 10px">Acciones administrativas</div>';
     html+='<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px">';
-    // Cancelar / Reactivar
-    if(sub.estado==='activa' && !sub.cancelacionProgramada){
+    // Cancelar / Reactivar / Quitar regalo
+    if(sub.stripeSubscriptionId && sub.estado==='activa' && !sub.cancelacionProgramada){
       html+='<button class="btn-ghost" onclick="adminCancelarSub(\''+uid+'\')" style="color:#f59e0b;border-color:#fed7aa">🛑 Cancelar suscripción</button>';
     }else if(sub.cancelacionProgramada){
       html+='<button class="btn-ghost" onclick="adminReactivarSub(\''+uid+'\')" style="color:#22c55e;border-color:#86efac">♻ Reactivar suscripción</button>';
+    }else if(!sub.stripeSubscriptionId && sub.estado==='activa' && sub.regaloFin){
+      html+='<button class="btn-ghost" onclick="adminQuitarRegalo(\''+uid+'\')" style="color:#dc2626;border-color:#fca5a5">🚫 Quitar regalo ahora</button>';
     }else{
       html+='<button class="btn-ghost" disabled style="opacity:0.5;cursor:not-allowed">Sin suscripción activa</button>';
     }
@@ -1520,7 +1544,13 @@ var TRIAL_DIAS_ADMIN=7;
 function calcMiembroSubStatus(m){
   var sub=m&&m.suscripcion?m.suscripcion:null;
   if(sub&&sub.estado){
-    if(sub.estado==='activa')return{key:'activa',label:'Activa',color:'#22c55e',plan:sub.plan||'mensual',cancelacionProgramada:sub.cancelacionProgramada,cancelaEn:sub.cancelaEn,activadaEn:sub.activadaEn};
+    if(sub.estado==='activa'){
+      // Si es un regalo puro (sin Stripe) y ya pasó su fecha, no sigue activo aunque el campo lo diga
+      if(!sub.stripeSubscriptionId && sub.regaloFin && new Date(sub.regaloFin) < new Date()){
+        return{key:'sin_suscripcion',label:'Regalo vencido',color:'#9ca3af',plan:sub.plan||null};
+      }
+      return{key:'activa',label:'Activa',color:'#22c55e',plan:sub.plan||'mensual',cancelacionProgramada:sub.cancelacionProgramada,cancelaEn:sub.cancelaEn,activadaEn:sub.activadaEn};
+    }
     if(sub.estado==='pago_fallido')return{key:'pago_fallido',label:'Pago fallido',color:'#dc2626',plan:sub.plan||'mensual'};
     if(sub.estado==='cancelada')return{key:'cancelada',label:'Cancelada',color:'#6b7280',plan:sub.plan||'mensual'};
     if(sub.estado==='incompleta')return{key:'pago_fallido',label:'Incompleta',color:'#dc2626'};
