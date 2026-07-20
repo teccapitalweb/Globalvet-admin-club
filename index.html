@@ -1428,6 +1428,11 @@ function openMiembroDetalle(uid){
   var cont=document.getElementById('miembroDetalleContent');
   cont.innerHTML='<div style="text-align:center;padding:60px;color:var(--gray-400)">Cargando...</div>';
 
+  // Verificar contra Stripe en vivo primero (autocorrige Firestore si el
+  // aviso de renovación/cancelación nunca llegó). Si no tiene Stripe real,
+  // el webhook no hace nada.
+  fetch(WEBHOOK_URL+'/subscription-status?uid='+uid).catch(function(){}).then(function(){
+
   Promise.all([
     db.collection('miembros').doc(uid).get(),
     db.collection('progreso').where('uid','==',uid).get().catch(function(){return{docs:[]};}),
@@ -1533,6 +1538,8 @@ function openMiembroDetalle(uid){
     console.error('Error cargando detalle:',e);
     cont.innerHTML='<div style="text-align:center;padding:60px;color:#dc2626">Error al cargar el detalle del miembro</div>';
   });
+
+  }); // cierre del fetch(WEBHOOK_URL+'/subscription-status...').then(...)
 }
 
 var WEBHOOK_URL='https://webhook-globalvet-j-production.up.railway.app';
@@ -1574,6 +1581,13 @@ function loadMiembros(){
     if(dashStat)dashStat.textContent=miembrosData.length;
   });
 }
+
+// Redibuja la tabla cada 30s con los mismos datos ya cargados (sin leer Firestore
+// otra vez) para que el badge de "Activa" pase solo a "Regalo vencido" cuando
+// se cumpla la hora, sin que el admin tenga que refrescar la página a mano.
+setInterval(function(){
+  if(document.getElementById('miembrosBody'))applyMiembrosFilters(false);
+}, 30000);
 
 function setMiembroFilter(filter){
   _miembroFilter=filter;
